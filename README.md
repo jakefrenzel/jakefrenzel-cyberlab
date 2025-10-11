@@ -10,7 +10,7 @@ I am creating a cybersecurity &amp; networking home lab to experiment with diffe
 <br/>
 
 ## 🔍 Overview
-- VPN Client: NordVPN
+- VPN Client: Wireguard w/ NordVPN
 <br/>
 
 ## 🚀 Development Overview

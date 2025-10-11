@@ -13,15 +13,15 @@
 #12. Click 'Updates', press the 'Refresh' button, wait for it to say OK, and then press the 'Upgrade' button<br/>
 
 ### Disable Subscription Popup
-#1. Open proxmox shell
-#2. Type in the following commands to create a backup
-`cd /usr/share/javascript/proxmox-widget-toolkit`
-`cp proxmoxlib.js proxmoxlib.js.bak`
-`nano proxmoxlib.js`
-#3. Press Ctrl + W
-#4. Search for 'no valid sub'
-#5. Find the line that says
-`let res = response.result;`
-#6. Delete it as well as the next 16 lines
-#7. The next remaining line should be orig_cmd(); (you will have deleted one of them)
-#8. Also delete the curly bracket on the next line to fix the code
+#1. Open proxmox shell<br/>
+#2. Type in the following commands to create a backup<br/>
+`cd /usr/share/javascript/proxmox-widget-toolkit`<br/>
+`cp proxmoxlib.js proxmoxlib.js.bak`<br/>
+`nano proxmoxlib.js`<br/>
+#3. Press Ctrl + W<br/>
+#4. Search for 'no valid sub'<br/>
+#5. Find the line that says<br/>
+`let res = response.result;`<br/>
+#6. Delete it as well as the next 16 lines<br/>
+#7. The next remaining line should be orig_cmd(); (you will have deleted one of them)<br/>
+#8. Also delete the curly bracket on the next line to fix the code<br/>

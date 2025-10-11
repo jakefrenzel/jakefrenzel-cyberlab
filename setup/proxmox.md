@@ -18,10 +18,13 @@
 `cd /usr/share/javascript/proxmox-widget-toolkit`<br/>
 `cp proxmoxlib.js proxmoxlib.js.bak`<br/>
 `nano proxmoxlib.js`<br/>
-#3. Press Ctrl + W<br/>
+#3. Press Ctrl + F<br/>
 #4. Search for 'no valid sub'<br/>
 #5. Find the line that says<br/>
 `let res = response.result;`<br/>
 #6. Delete it as well as the next 16 lines<br/>
 #7. The next remaining line should be orig_cmd(); (you will have deleted one of them)<br/>
 #8. Also delete the curly bracket on the next line to fix the code<br/>
+#9. Exit with Ctrl + X and make sure to press 'Y' to save<br/>
+#10. Restart with the following command:<br/>
+`systemctl restart pveproxy.service`<br/>

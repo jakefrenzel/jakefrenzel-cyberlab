@@ -10,12 +10,12 @@ I am creating a cybersecurity &amp; networking home lab to experiment with diffe
 - Test Dockerized applications
 - Practice incident response
 
-## 🗺️ Architecture
-![Lab Diagram](hardware/topology-diagram.jpeg)
-
 ## 📚 Contents
 | Folder | Description |
 |--------|--------------|
 | `setup/` | Documentation for system and service setup |
 | `hardware/` | Physical components and diagrams |
 | `scripts/` | Automation and utility scripts |
+
+## 🗺️ Architecture
+![Lab Diagram](hardware/topology-diagram.jpeg)

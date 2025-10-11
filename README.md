@@ -11,7 +11,7 @@ I am creating a cybersecurity &amp; networking home lab to experiment with diffe
 - Practice incident response
 
 ## 🗺️ Architecture
-![Lab Diagram](hardware/topology-diagram.png)
+![Lab Diagram](hardware/topology-diagram.jpeg)
 
 ## 📚 Contents
 | Folder | Description |

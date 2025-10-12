@@ -29,3 +29,5 @@
 #5. Pick a username (jake)<br/>
 #6. Type in a password<br/>
 #7. Click through the rest<br/>
+#8. Remove the ISO by click hardware, double clicking 'CD/DVD Drive', and then select do not use any media<br/>
+#9. Reboot<br/>

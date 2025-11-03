@@ -5,6 +5,9 @@ I am creating a cybersecurity &amp; networking home lab to experiment with diffe
 ```text
 /
 ├── README.md
+├── logs.md
+├── config/
+│   └── router.md
 ├── hardware/
 │   ├── inventory.md
 │   └── topology-diagram.md
@@ -28,6 +31,7 @@ I am creating a cybersecurity &amp; networking home lab to experiment with diffe
 <br/>
 
 ## 🔍 Overview
+- DVWS: OWASP Juice Shop
 - VPN Client: Wireguard w/ NordVPN
 <br/>
 

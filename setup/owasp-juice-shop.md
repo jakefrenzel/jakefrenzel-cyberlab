@@ -1,10 +1,17 @@
-## OWASP Juice Shop
+# OWASP Juice Shop
+## Overview
+- Setting up an Ubuntu Server (skip if you already have one)
+  - Setting Up The Host Virtual Machine - Ubuntu Server
+  - Proxmox Setup - Ubuntu Server
+  - Boot & Configure Ubuntu Server
+- OWASP Juice Shop Setup w/ Docker
+---
 ### Setting Up The Host Virtual Machine - Ubuntu Server
 1. Download the latest version: Ubuntu 24.04.3 LTS from [ubuntu.com/download/server](https://ubuntu.com/download/server/)
 2. Navigate to your virtualization platform
 3. Open the Ubuntu ISO image and upload
 > &nbsp;&nbsp;&nbsp;The goal is to have the Ubuntu Server ready to boot up, I use proxmox which I will explain in the next section
-
+---
 ### Proxmox Setup - Ubuntu Server
 1. Press the create VM in the top right
 2. Give it a name: **owasp-juice-shop**
@@ -20,7 +27,7 @@
 12. Click next to **Memory**
 13. Change the amount of memory to **4096**
 14. Click **Next** and **Finish**
-
+---
 ### Boot & Configure Ubuntu Server
 1. Click the new VM and press **Start**
 2. Press the **Console** option to display the VM's screen

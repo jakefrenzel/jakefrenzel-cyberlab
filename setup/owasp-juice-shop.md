@@ -38,3 +38,45 @@
 7. Click **Next** through the rest
 8. Remove the ISO by clicking **Hardware**, double clicking **CD/DVD Drive**, and then select **Do not use any media**
 9. Reboot
+---
+### Installation & Start Up
+1. Log into the Ubuntu Server
+2. Enter the command (make sure the dir exists so no errors occur)
+```text
+sudo mkdir -p /etc/apt/keyrings
+```
+3. Then update
+```text
+sudo apt update
+```
+4. Install Docker for the Ubuntu server
+```text
+sudo apt install docker.io -y
+```
+5. Enable and start up Docker
+```text
+sudo systemctl enable docker
+sudo systemctl start docker
+```
+6. To verify the installation and startup was successful
+```text
+sudo docker run hello-world
+```
+OPTIONAL: Enter the following command to use docker without having to type sudo repeatedly
+```text
+sudo usermod -aG docker $USER
+newgrp docker
+```
+7. Test with the following command:
+```text
+docker ps
+```
+8. Run the OWASP Juice Shop!
+```text
+docker pull bkimminich/juice-shop
+docker run -d -p 3000:3000 --name juice-shop bkimminich/juice-shop
+```
+9. Access OWASP Juice Shop in the browser
+```text
+http://<your_vm_ip>:3000
+```

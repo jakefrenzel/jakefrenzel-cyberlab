@@ -27,6 +27,7 @@ I am creating a cybersecurity &amp; networking home lab to experiment with diffe
 | Folder | Description |
 |--------|--------------|
 | `setup/` | Documentation for system and service setup |
+| `config/` | Configurations made to systems and services |
 | `hardware/` | Physical components and diagrams |
 <br/>
 

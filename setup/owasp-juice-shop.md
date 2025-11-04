@@ -80,3 +80,18 @@ docker run -d -p 3000:3000 --name juice-shop bkimminich/juice-shop
 ```text
 http://<your_vm_ip>:3000
 ```
+### Optional: Auto Startup Docker
+1. Remove the previous container so we can create an auto-restart container
+```text
+docker stop juice-shop
+docker rm juice-shop
+```
+2. Create the new container with the restart flag
+```text
+docker run -d \
+  --name juice-shop \
+  --restart unless-stopped \
+  -p 3000:3000 \
+  bkimminich/juice-shop
+```
+This will allow the container to start up each time the Ubuntu Server is turned on or rebooted

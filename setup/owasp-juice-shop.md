@@ -1,10 +1,18 @@
-# OWASP Juice Shop
-## Overview
-- Setting up an Ubuntu Server (skip if you already have one)
-  - Setting Up The Host Virtual Machine - Ubuntu Server
-  - Proxmox Setup - Ubuntu Server
-  - Boot & Configure Ubuntu Server
-- OWASP Juice Shop Setup w/ Docker
+# 🧃 OWASP Juice Shop Setup (Ubuntu Server + Docker)
+
+This guide explains how to deploy **OWASP Juice Shop** on an **Ubuntu Server** virtual machine using **Docker**.  
+If you already have an Ubuntu Server running, skip to the **Docker Installation & Startup** section.
+
+---
+
+## 🧭 Overview
+
+- [Setting Up the Host Virtual Machine (Ubuntu Server)](#setting-up-the-host-virtual-machine---ubuntu-server)
+- [Proxmox Setup — Ubuntu Server](#proxmox-setup---ubuntu-server)
+- [Boot & Configure Ubuntu Server](#boot--configure-ubuntu-server)
+- [Installation & Startup (Docker)](#installation--startup)
+- [Optional: Auto Startup Configuration](#optional-auto-startup-docker)
+
 ---
 ### Setting Up The Host Virtual Machine - Ubuntu Server
 1. Download the latest version: Ubuntu 24.04.3 LTS from [ubuntu.com/download/server](https://ubuntu.com/download/server/)

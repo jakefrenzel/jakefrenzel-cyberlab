@@ -1,34 +1,68 @@
-# Network Setup
-## Beryl AX Router Setup
-#1. Connect to the Beryl AX Router LAN port with laptop via ethernet cable<br/>
-#2. Access the admin panel via http://192.168.8.1/ in the broswer<br/>
-#3. Set a very secure password for the router's admin panel<br/>
-#4. Set very secure passwords for the 2.4 GHz and 5 GHz Wi-Fi channels<br/>
-#5. Access the admin panel using the password set previously<br/>
+# 🌐 Network Setup
 
-## NETGEAR Switch Setup
-#1. Open a browser and connect to http://192.168.8.249/
-> It is possible your Netgear switch did not set to the default. In this case, open your router's admin panel, click on 'clients' in the sidebar, and look for the Netgear switch (GS308EP) and use the IP that it displays.
+This guide outlines how to configure your **Beryl AX Router** and **NETGEAR Switch**, then assign LAN IP addresses for your local network.
 
-#2. Type in the default password which is 'password'<br/>
-#3. It will then prompt you to enter a new admin password, also set a very secure password for this admin<br/>
-#4. Log in to Netgear admin with the new secure password<br/>
+---
 
-## Configure LAN IP Addresses
-### Switch
-#1. Log in to the admin panel<br/>
-#2. Click on the IP address dropdown on the home page<br/>
-#3. Disable DHCP<br/>
-#4. Change the IP address to 192.168.10.2<br/>
-#5. Change the gateway to 192.168.10.1 (this is what our router's address will be)<br/>
-#6. The admin panel will now fail to load until we set up our router<br/>
+## 🛜 Beryl AX Router Setup
 
+1. Connect to the **Beryl AX Router** LAN port using an Ethernet cable.
+2. Access the admin panel via [http://192.168.8.1/](http://192.168.8.1/) in your browser.
+3. Set a **strong and secure password** for the router’s admin panel.
+4. Set **secure passwords** for both the **2.4 GHz** and **5 GHz** Wi-Fi networks.
+5. Log back into the admin panel using the password you just created.
 
-### Router
-#1. Log in to the admin panel<br/>
-#2. Open the network dropdown in the sidebar<br/>
-#3. Select the option labeled 'LAN'<br/>
-#4. Change the router IP address to 198.168.10.1<br/>
-#5. Apply settings and the will reboot<br/>
-#6. Navigate to the DHCP server settings (scroll down in the same page as before)<br/>
-#7. Change the DHCP server IP range to start at 192.168.10.100 and end at 192.168.10.200<br/>
+---
+
+## 🖧 NETGEAR Switch Setup
+
+1. Open a browser and navigate to [http://192.168.8.249/](http://192.168.8.249/).  
+   > 💡 **Note:** If your switch is not using the default IP, open your router’s admin panel, click on **Clients**, and find your switch (model **GS308EP**) to locate its assigned IP address.
+
+2. Enter the **default password**: `password`
+3. When prompted, set a **new secure admin password**.
+4. Log back into the Netgear admin panel using your new password.
+
+---
+
+## ⚙️ Configure LAN IP Addresses
+
+### 🧩 Switch Configuration
+
+1. Log in to the switch admin panel.
+2. From the home page, open the **IP Address** dropdown.
+3. **Disable DHCP.**
+4. Change the **IP Address** to `192.168.10.2`.
+5. Change the **Gateway** to `192.168.10.1` (this will be your router’s IP).
+6. The admin panel will become temporarily inaccessible until the router is reconfigured.
+
+---
+
+### 📡 Router Configuration
+
+1. Log in to the router admin panel.
+2. In the sidebar, open the **Network** dropdown.
+3. Select the **LAN** option.
+4. Change the **Router IP Address** to `192.168.10.1`.
+5. Apply the settings — the router will reboot automatically.
+6. Navigate to **DHCP Server Settings** (scroll down on the same page).
+7. Set the **DHCP IP Range**:
+   - **Start:** `192.168.10.100`
+   - **End:** `192.168.10.200`
+
+---
+
+## ✅ Summary
+
+| Device        | IP Address     | Gateway        | DHCP |
+|----------------|----------------|----------------|-------|
+| Router (Beryl AX) | `192.168.10.1` | —              | Enabled |
+| Switch (NETGEAR)  | `192.168.10.2` | `192.168.10.1` | Disabled |
+
+---
+
+## 💡 Tips
+
+- Keep your router and switch admin credentials stored securely.
+- Avoid using easily guessed IPs or default passwords.
+- After configuration, label your devices with their assigned IPs for easier troubleshooting.

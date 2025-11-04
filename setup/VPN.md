@@ -1,13 +1,56 @@
-## VPN Setup w/ Wireguard Client
-#1. Access the admin panel<br/>
-#2. Navigate to the VPN section<br/>
-#3. Open the dropdown and select Wireguard Client<br/>
-#4. Select Nord VPN (or whatever VPN you use)<br/>
-#5. Open a new tab and log in to your Nord account<br/>
-#6. Select the NordVPN option from the sidebar<br/>
-#7. Scroll down and search for the 'Get Access Token' option and click it<br/>
-#8. Copy the access token to a secure passwords manager<br/>
-#9. Go back to your admin panel and paste the access token in to the input field and submit<br/>
-#10. Select your VPN server(s) and submit<br/>
-#11. Navigate to your VPN dashboard<br/>
-#12. Toggle the switch to enable your VPN<br/>
+# 🛡️ VPN Setup — WireGuard Client (NordVPN Example)
+
+This guide walks you through setting up a **WireGuard client** for your VPN service (using **NordVPN** as an example).
+
+---
+
+## ✅ Prerequisites
+
+Before starting, make sure you have:
+
+- Access to your **device’s admin panel**
+- A **VPN provider** that supports WireGuard (e.g., NordVPN)
+- A **password manager** for storing your access token securely
+
+---
+
+## ⚙️ Setup Instructions
+
+1. **Access the admin panel.**  
+   Log into your router’s web interface or admin panel.
+
+2. **Navigate to the VPN section.**
+
+3. **Select _WireGuard Client_** from the dropdown menu.
+
+4. **Choose your VPN provider.**  
+   For example: `NordVPN`.
+
+5. **Log in to your VPN provider account** in a new browser tab.
+
+6. **Generate an access token.**  
+   - In your NordVPN dashboard, select **NordVPN** from the sidebar.  
+   - Scroll down to **Get Access Token** and click it.  
+   - Copy the token and save it securely in your password manager.
+
+7. **Return to your admin panel.**  
+   Paste the access token into the **Access Token** input field and click **Submit**.
+
+8. **Select your preferred VPN server(s)** from the available list.
+
+9. **Save or apply your settings.**
+
+10. **Enable your VPN connection.**  
+    Go to the VPN dashboard and toggle the switch to **ON**.
+
+---
+
+## 🔍 Verification
+
+To confirm your VPN is active, run:
+
+```bash
+curl https://ipinfo.io
+```
+
+You should see your **VPN server’s IP address**, not your local one.

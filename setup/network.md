@@ -4,13 +4,17 @@ This guide outlines how to configure your **Beryl AX Router** and **NETGEAR Swit
 
 ---
 
-## 🛜 Beryl AX Router Setup
+## 🛰 Beryl AX Router Setup
 
 1. Connect to the **Beryl AX Router** LAN port using an Ethernet cable.
-2. Access the admin panel via [http://192.168.8.1/](http://192.168.8.1/) in your browser.
-3. Set a **strong and secure password** for the router’s admin panel.
-4. Set **secure passwords** for both the **2.4 GHz** and **5 GHz** Wi-Fi networks.
-5. Log back into the admin panel using the password you just created.
+   
+3. Access the admin panel via [http://192.168.8.1/](http://192.168.8.1/) in your browser.
+   
+5. Set a **strong and secure password** for the router’s admin panel.
+   
+7. Set **secure passwords** for both the **2.4 GHz** and **5 GHz** Wi-Fi networks.
+   
+9. Log back into the admin panel using the password you just created.
 
 ---
 
@@ -30,23 +34,34 @@ This guide outlines how to configure your **Beryl AX Router** and **NETGEAR Swit
 ### 🧩 Switch Configuration
 
 1. Log in to the switch admin panel.
-2. From the home page, open the **IP Address** dropdown.
-3. **Disable DHCP.**
-4. Change the **IP Address** to `192.168.10.2`.
-5. Change the **Gateway** to `192.168.10.1` (this will be your router’s IP).
-6. The admin panel will become temporarily inaccessible until the router is reconfigured.
+   
+3. From the home page, open the **IP Address** dropdown.
+   
+5. **Disable DHCP.**
+   
+7. Change the **IP Address** to `192.168.10.2`.
+   
+9. Change the **Gateway** to `192.168.10.1` (this will be your router’s IP).
+    
+11. The admin panel will become temporarily inaccessible until the router is reconfigured.
 
 ---
 
 ### 📡 Router Configuration
 
 1. Log in to the router admin panel.
-2. In the sidebar, open the **Network** dropdown.
-3. Select the **LAN** option.
-4. Change the **Router IP Address** to `192.168.10.1`.
-5. Apply the settings — the router will reboot automatically.
-6. Navigate to **DHCP Server Settings** (scroll down on the same page).
-7. Set the **DHCP IP Range**:
+   
+3. In the sidebar, open the **Network** dropdown.
+   
+5. Select the **LAN** option.
+   
+7. Change the **Router IP Address** to `192.168.10.1`.
+   
+9. Apply the settings — the router will reboot automatically.
+    
+11. Navigate to **DHCP Server Settings** (scroll down on the same page).
+    
+13. Set the **DHCP IP Range**:
    - **Start:** `192.168.10.100`
    - **End:** `192.168.10.200`
 

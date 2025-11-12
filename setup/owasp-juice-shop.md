@@ -17,64 +17,64 @@ If you already have an Ubuntu Server running, skip to the **Docker Installation 
 ### Setting Up The Host Virtual Machine - Ubuntu Server
 1. Download the latest version: Ubuntu 24.04.3 LTS from [ubuntu.com/download/server](https://ubuntu.com/download/server/)
    
-3. Navigate to your virtualization platform
+2. Navigate to your virtualization platform
    
-5. Open the Ubuntu ISO image and upload
+3. Open the Ubuntu ISO image and upload
    
 > &nbsp;&nbsp;&nbsp;The goal is to have the Ubuntu Server ready to boot up, I use proxmox which I will explain in the next section
 ---
 ### Proxmox Setup - Ubuntu Server
 1. Press the create VM in the top right
    
-3. Give it a name: **owasp-juice-shop**
+2. Give it a name: **owasp-juice-shop**
    
-5. Next go to **OS**
+3. Next go to **OS**
    
-7. Select the proper storage: **mydata**
+4. Select the proper storage: **mydata**
    
-9. Select the ISO Image you uploaded: **Ubuntu Server**
+5. Select the ISO Image you uploaded: **Ubuntu Server**
     
-11. Click next to the **System** tab
+6. Click next to the **System** tab
     
-13. Toggle **Qemu Agent:** Enable
+7. Toggle **Qemu Agent:** Enable
     
-15. Click next to **Disks**
+8. Click next to **Disks**
     
-16. Change the disk size here if you need, the reccomendation is: **20GB**.
+9. Change the disk size here if you need, the reccomendation is: **20GB**.
     
-18. Click next to **CPU**
+10. Click next to **CPU**
     
-20. Change the amount of CPU cores to use, I will select **2 Cores**
+11. Change the amount of CPU cores to use, I will select **2 Cores**
     
-22. Click next to **Memory**
+12. Click next to **Memory**
     
-24. Change the amount of memory to **4096**
+13. Change the amount of memory to **4096**
     
-26. Click **Next** and **Finish**
+14. Click **Next** and **Finish**
 ---
 ### Boot & Configure Ubuntu Server
 1. Click the new VM and press **Start**
    
-3. Press the **Console** option to display the VM's screen
+2. Press the **Console** option to display the VM's screen
    
-5. Keep all the default settings (Click next)
+3. Keep all the default settings (Click next)
    
-7. Enter your name and server name: **owaspjs**
+4. Enter your name and server name: **owaspjs**
    
-9. Pick a username: **jake**
+5. Pick a username: **jake**
     
-11. Type in a secure password
+6. Type in a secure password
     
-13. Click **Next** through the rest
+7. Click **Next** through the rest
     
-15. Remove the ISO by clicking **Hardware**, double clicking **CD/DVD Drive**, and then select **Do not use any media**
+8. Remove the ISO by clicking **Hardware**, double clicking **CD/DVD Drive**, and then select **Do not use any media**
     
-17. Reboot
+9. Reboot
 ---
 ### Installation & Start Up
 1. Log into the Ubuntu Server
    
-3. Enter the command (make sure the dir exists so no errors occur)
+2. Enter the command (make sure the dir exists so no errors occur)
 ```text
 sudo mkdir -p /etc/apt/keyrings
 ```

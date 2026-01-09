@@ -1,4 +1,5 @@
 ```text
+1/8/2026 - Introduce v2
 11/11/2025 - Revised all documentation for clarity and improved readability
 11/9/2025 - Added a Wazuh Client
 11/3/2025 - Updated inventory documentation with accurate and current hardware + topology

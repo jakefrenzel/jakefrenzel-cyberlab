@@ -15,8 +15,7 @@ Follow these steps to replicate the lab:
 4. **🖥️ 04 - Virtual Machines**: Deploy lab VMs on Proxmox  
 5. **🌐 05 - Network Segmentation**: Apply VLANs and isolation  
 6. **🛡️ 06 - Security Hardening**: Apply firewall hardening and monitoring  
-7. **🧪 07 - Labs / Exercises**: Deploy vulnerable apps, capture traffic, analyze  
-8. **✍️ 08 - Lessons Learned**: Review and reflect  
+7. **🧪 07 - Labs / Exercises**: Deploy vulnerable apps, capture traffic, analyze
 
 ---
 

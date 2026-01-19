@@ -45,4 +45,4 @@ Document the physical and logical network architecture implemented in Cyberlab v
 
 ## Network Diagram
 
-![CyberLab v2 Network Topology](../architecture/v2-topology.png)
+![CyberLab v2 Network Topology](../architecture/v2-topology.jpg)

@@ -33,5 +33,16 @@ Document the physical and logical network architecture implemented in Cyberlab v
 ## Logical Network Design
 | Network | VLAN | Subnet | Purpose |
 |---------|------|--------|---------|
-| Management | 10 | 10.27.10.0 | Administration and maintenance |
-| LAN | 20 | 10.27.20.0 | Firewall, Switch, Router, Proxmox |
+| Management | 10 | 10.27.10.0 | Firewall, Switch, Router, Proxmox, Admin access |
+| Workstations | 20 | 10.27.20.0 | Normal users, primary internal network |
+| Servers | 30 | 10.27.30.0 | AD, file servers, DNS, internal services |
+| Lab | 40 | 10.27.40.0 | Kali, malware analysis, attack VMs |
+| DMZ | 50 | 10.27.50.0 | Public-facing services |
+| Guest | 60 | 10.27.60.0 | Guest internet access |
+| Monitoring | 70 | 10.27.70.0 | IDS, Suricata, monitoring, logging |
+
+---
+
+## Network Diagram
+
+![CyberLab v2 Network Topology](../architecture/v2-topology.png)

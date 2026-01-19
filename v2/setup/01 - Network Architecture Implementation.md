@@ -14,6 +14,7 @@ Document the physical and logical network architecture implemented in Cyberlab v
 | Beryl AX | Router (AP Mode) |
 | Proxmox Host | Virtualization Server |
 | Dell Laptop | Admin PC |
+| Raspberry Pi | IDS / Suricata |
 | Modem | Internet Access |
 
 ---
@@ -27,6 +28,7 @@ Document the physical and logical network architecture implemented in Cyberlab v
 | Beryl AX | Switch Port 2 | Access port |
 | Proxmox Host | Switch port 3 | VLAN trunk |
 | Admin PC | Switch port 4 | Temporary management |
+| Raspberry Pi | Switch port 5 | IDS |
 
 ---
 
@@ -46,3 +48,36 @@ Document the physical and logical network architecture implemented in Cyberlab v
 ## Network Diagram
 
 ![CyberLab v2 Network Topology](../architecture/v2-topology.jpg)
+
+---
+
+## Steps taken
+
+1. Connected Protectli Vault WAN interface to modem
+2. Connected Protectli Vault LAN interface to Netgear switch port 1
+3. Connected Beryl AX WAN interface to Netgear switch port 2
+4. Connected Proxmox host to Netgear switch port 3
+5. Connected Admin PC to switch port 4
+6. Connected Raspberry Pi to switch port 5
+
+---
+
+## Verification
+
+-
+
+---
+
+## Deviations From Original Plan
+
+- 
+
+---
+
+## Notes & Observations
+
+- Separating physical and logical connections and documentation made setup easier and future-proofs the network for when I add more
+- Having a network diagram before configuration allowed for a smooth experience during setup
+- Determining switch ports beforehand saved time and maintains a logical flow (prioritizes firewall in switch port 1)
+
+---

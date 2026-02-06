@@ -1,4 +1,4 @@
-# Intial pfSense Configuration
+# Initial pfSense Configuration
 
 ## Access the Web GUI
 

@@ -62,18 +62,6 @@ Document the physical and logical network architecture implemented in Cyberlab v
 
 ---
 
-## Verification
-
--
-
----
-
-## Deviations From Original Plan
-
-- 
-
----
-
 ## Notes & Observations
 
 - Separating physical and logical connections and documentation made setup easier and future-proofs the network for when I add more

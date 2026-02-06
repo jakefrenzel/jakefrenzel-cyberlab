@@ -33,8 +33,8 @@ Document the actual IP addressing scheme implemented in CyberLab v2, including s
 | Device | Interface | VLAN | IP Address | Purpose |
 |--------|-----------|------|------------|---------|
 | Firewall (pfSense) | LAN | 10 | 10.27.10.1 | Gateway |
-| Proxmox Host | vmbr0 | 10 | 10.27.10.2 | VM management |
-| Switch | Management | 10 | 10.27.10.3 | Switch admin |
+| Switch | Management | 10 | 10.27.10.2 | Switch admin |
+| Proxmox Host | vmbr0 | 10 | 10.27.10.3 | VM management |
 | OWASP Juice Shop | ens18 | 40 | 10.27.40.10 | Web app testing |
 | Wazuh Server | ens18 | 70 | 10.27.70.40 | Monitoring |
 

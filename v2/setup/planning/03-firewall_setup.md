@@ -52,3 +52,7 @@ Plan the firewall configuration for your lab, including interfaces, VLANs, routi
 - Planning firewall rules early prevents accidental exposure of sensitive networks  
 - Visualizing source and destination VLANs helps avoid misconfigurations  
 - Logging and monitoring plans allow for easier troubleshooting once implemented
+
+## ➡️ Next Up
+
+Navigate to next section: [04 - Virtual Machines](04-virtual_machines.md)

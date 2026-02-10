@@ -50,3 +50,7 @@ Plan the security measures for your lab to protect your network and systems. Thi
 - Planning hardening early avoids security gaps when implementing  
 - Mapping security controls to VLANs and IPs improves network safety  
 - Documenting procedures makes implementation easier and more reproducible
+
+## ➡️ Next Up
+
+Navigate to next section: [07 - Labs & Exercises](07-labs_and_exercises.md)

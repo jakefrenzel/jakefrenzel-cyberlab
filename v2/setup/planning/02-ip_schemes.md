@@ -52,3 +52,7 @@ Plan IP addressing and subnetting for each network segment in your lab. This ens
 - Planning IPs and VLANs early prevents conflicts and confusion later  
 - Keeping a table of IP assignments helps with troubleshooting  
 - Aligning IP schemes with the network architecture ensures consistency  
+
+## ➡️ Next Up
+
+Navigate to next section: [03 - Firewall Setup](03-firewall_setup.md)

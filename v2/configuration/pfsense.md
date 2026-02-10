@@ -28,7 +28,7 @@
 ## Configure LAN Interface
 1. Switch LAN IP address
 ```pfsense
-10.27.20.1
+10.27.10.1
 ```
 
 ## Set Admin Password

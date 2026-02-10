@@ -44,3 +44,7 @@ Plan the physical and logical layout of the cybersecurity lab, including all dev
 - Planning the physical and logical network first reduces confusion later  
 - Diagramming helps visualize VLANs and traffic flow  
 - Early architecture planning makes IP and firewall setup much easier
+
+## ➡️ Next Up
+
+Navigate to next section: [02 - IP Schemes](02-ip_schemes.md)

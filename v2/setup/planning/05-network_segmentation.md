@@ -47,6 +47,9 @@ Plan the segmentation of your lab network using VLANs and subnets to improve sec
 - Confirm isolation between VLANs matches your planned policy  
 - Test connectivity using ping or small traffic tests between networks  
 
+## ➡️ Next Up
+
+Navigate to next section: [06 - Security Hardening](06-security_hardening.md)
 ## ✍️ Lessons Learned
 - Early VLAN planning reduces misconfigurations and troubleshooting later  
 - Clear documentation of allowed and restricted traffic is critical  

@@ -1,5 +1,9 @@
 # VLAN Configuration
 
+## Quick Access
+
+[Return to Network Architecture Implementation](../setup/01-network_architecture_implementation.md)
+
 ## Create VLANs
 ```pfsense
 Interfaces -> Assignments -> VLANs

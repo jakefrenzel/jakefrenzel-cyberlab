@@ -93,3 +93,7 @@ Document the actual IP addressing scheme implemented in CyberLab v2, including s
 - Keeping management infrastructure on static IPs simplifies access  
 - Documenting IP assignments early prevented conflicts  
 - Clear separation of static and DHCP ranges improves maintainability  
+
+## ➡️ Next Up
+
+Navigate to next section: [03 - Firewall Setup Implementation](03-firewall_setup_implementation.md)

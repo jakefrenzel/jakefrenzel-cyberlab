@@ -33,6 +33,7 @@ Document the physical and logical network architecture implemented in Cyberlab v
 ---
 
 ## Logical Network Design
+
 | Network | VLAN | Subnet | Purpose |
 |---------|------|--------|---------|
 | Management | 10 | 10.27.10.0 | Firewall, Switch, Router, Proxmox, Admin access |
@@ -42,6 +43,10 @@ Document the physical and logical network architecture implemented in Cyberlab v
 | DMZ | 50 | 10.27.50.0 | Public-facing services |
 | Guest | 60 | 10.27.60.0 | Guest internet access |
 | Monitoring | 70 | 10.27.70.0 | IDS, Suricata, monitoring, logging |
+
+<br>
+
+ 📝 Configuration instructions available: [VLAN Configuration](../configuration/pfsense-vlans.md)
 
 ---
 

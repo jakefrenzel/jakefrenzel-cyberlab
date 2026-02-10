@@ -74,3 +74,7 @@ Document the physical and logical network architecture implemented in Cyberlab v
 - Determining switch ports beforehand saved time and maintains a logical flow (prioritizes firewall in switch port 1)
 
 ---
+
+## ➡️ Next Up
+
+Navigate to next section: [IP Schemes Implementation](02-ip_schemes_implementation.md)

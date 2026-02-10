@@ -45,3 +45,7 @@ Services -> DHCP Server
 
 1. Set address pool range from
 ```10.27.10.100``` to ```10.27.10.199``` 
+
+## ➡️ Next Up
+
+Navigate to next section: [04 - Virtual Machines Implementation](04-virtual_machines_implementation.md)

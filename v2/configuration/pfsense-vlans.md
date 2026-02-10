@@ -31,3 +31,6 @@ Interfaces -> Assignments
 5. Set IPv4 Configuration Type: `Static IPv4`
 
 6. Set the IPv4 address: `10.27.10.1/24`
+
+### VLAN Config Screenshot
+![VLAN Configuration](../images/VLANs.png)

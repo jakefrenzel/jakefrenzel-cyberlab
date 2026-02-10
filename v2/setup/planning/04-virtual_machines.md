@@ -51,3 +51,7 @@ Plan the virtual machines (VMs) for your lab, including their purpose, network s
 - Planning VM roles early prevents overprovisioning or misplacement  
 - Assigning network segments in advance avoids misconfigurations later  
 - Documenting resources and roles ensures reproducibility and easier scaling
+
+## ➡️ Next Up
+
+Navigate to next section: [05 - Network Segmentation](05-network_segmentation.md)

@@ -66,3 +66,7 @@ Plan the hands-on cybersecurity exercises you want to run in this lab, including
 - Planning labs ahead ensures every VM and network segment serves a purpose  
 - Knowing attack paths in advance improves firewall and logging decisions  
 - Documenting labs makes the homelab valuable for your resume and GitHub
+
+## ➡️ Next Up
+
+Navigate to implementation: [01 - Network Architecture Implementation](../implementation/01-network_architecture_implementation.md)

@@ -38,3 +38,17 @@ Interfaces -> Assignments
 
 ### VLAN Config Screenshot
 ![VLAN Configuration](../images/VLANs.png)
+
+
+## Enable DHCP Server for VLANs
+```pfsense
+Services -> DHCP Server -> VLAN10
+```
+
+1. ✅ Enable DHCP Server on VLAN10 Interface
+
+2. Set the **Address Pool Range:** `10.27.10.100` to `10.27.10.199`
+
+3. Save
+
+4. Repeat for all VLANs 

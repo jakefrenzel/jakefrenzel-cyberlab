@@ -63,3 +63,18 @@ status -> OpenVPN
 ```
 
 1. You should see **Connected (success)**
+
+## Add VPN Interface
+```pfsense
+Interfaces -> Assignments
+```
+
+1. Select `ovpnc1 (NordVPN)`
+
+2. Press `+Add`
+
+3. Click on it and give it a description: `NordVPN`
+
+4. Enable interface
+
+5. Save

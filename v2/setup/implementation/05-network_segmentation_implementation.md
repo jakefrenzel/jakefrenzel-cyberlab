@@ -36,7 +36,7 @@ The managed switch enforces VLAN separation:
 
 <br>
 
-📝 Configuration instructions available: [Switch Configuration](../configuration/managed-switch.md)
+📝 Configuration instructions available: [Switch Configuration](../../configuration/managed-switch.md)
 
 ---
 

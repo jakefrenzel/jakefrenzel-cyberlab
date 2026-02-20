@@ -1,0 +1,30 @@
+# Netgear Switch Configuration
+
+Access the web GUI from the default IP
+```netgear-web-gui
+192.168.0.239
+```
+
+## Set Secure Admin Password
+
+1. Log in with the default password: `password`
+
+2. Create a strong password up to 20 characters long (I recommend to use all 20 characters)
+
+3. Log in with admin credentials
+
+## Update Firmware
+```netgear-web-gui
+Settings -> Firmware -> Check for updates
+```
+
+My Firmware was an entire major version behind
+
+1. Download latest firmware
+
+2. Unzip the download
+
+3. Update
+
+## Enable 802.1Q VLAN
+

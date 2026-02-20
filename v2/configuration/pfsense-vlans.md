@@ -2,7 +2,7 @@
 
 ## Quick Access
 
-[Return to Network Architecture Implementation](../setup/01-network_architecture_implementation.md)
+[Return to Network Architecture Implementation](../setup/implementation/01-network_architecture_implementation.md)
 
 ## Create VLANs
 ```pfsense

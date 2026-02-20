@@ -1,6 +1,13 @@
 # Netgear Switch Configuration
 
-Access the web GUI from the default IP
+## Quick Access
+
+[Return to Network Architecture Implementation](../setup/implementation/01-network_architecture_implementation.md)
+
+## Access Switch Management Dashboard
+
+1. Access the web GUI from the default IP
+
 ```netgear-web-gui
 192.168.0.239
 ```

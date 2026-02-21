@@ -40,7 +40,7 @@ Document the actual IP addressing scheme implemented in CyberLab v2, including s
 
 ---
 
-### Planned Static IPs
+### 🗺️ Planned Static IPs
 
 | Device | Interface | VLAN | IP Address | Purpose |
 |--------|-----------|------|------------|---------|

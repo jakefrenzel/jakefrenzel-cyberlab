@@ -33,5 +33,24 @@ My Firmware was an entire major version behind
 
 3. Update
 
-## Enable 802.1Q VLAN
+## Enable Advanced 802.1Q VLAN
+```netgear-web-gui
+Switching -> VLAN
+```
+Advanced 802.1Q VLAN
+1. Activate mode: `Advanced 802.1Q VLAN`
 
+2. Create a new VLAN: `Add VLAN`
+
+3. Name it corresponding to the pfSense VLANs: `Management`
+
+4. Assign the matching VLAN ID: `10`
+
+5. Select whether each VLAN should be tagged, untagged, or excluded
+
+6. Repeat for all VLANs
+
+| VLAN | PVID | Port | Membership |
+|------|------|------|------------|
+| Management | 10 | 1,2,3,4,5,6,7,8 | Tagged |
+| 

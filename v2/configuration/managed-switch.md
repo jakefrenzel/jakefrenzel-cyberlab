@@ -54,3 +54,9 @@ Advanced 802.1Q VLAN
 |------|------|------|------------|
 | Management | 10 | 1,2,3,4,5,6,7,8 | Tagged |
 | 
+
+## Edit PVID Table
+
+1. Click view PVID table
+
+2. For each port select the PVID for each port. (e.g. port 2 proxmox server has PVID of 30, the servers VLAN)

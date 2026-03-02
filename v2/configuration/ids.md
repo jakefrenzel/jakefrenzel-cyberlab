@@ -44,6 +44,39 @@ Diagnostics -> Port Mirroring
 
 2. Verify that you see the **PROMISC** flag: `ip link show eth0`
 
-3. Run a quick test to see some traffic: `sudo tcpdump -i eth0 -nn`
+### Verify Port Mirroring + NIC Offloading + Promiscuous
+
+1. Run a quick test to see some traffic using tcpdump: `sudo tcpdump -i eth0 -nn`
+
+2. Ping another LAN device or run an nmap scan and look for ICMP requests and replies
+
+3. If you see them from the Raspberry Pi, it is working
+
+## Suricata Configuration
+
+1. Verify the config file exists
+```shell
+sudo cat /etc/suricata/suricata.yaml
+```
+
+### Install Rules
+1. Install IDS rules
+```shell
+sudo suricata-update
+```
+
+## Test Suricata
+1. Test run Suricata
+```shell
+sudo suricata -i eth0 -v
+```
+
+2. Verify engine is running:
+`suricata: This is Suricata version 7.0.3 RELEASE running in SYSTEM mode`
+
+3. Verify rules are processed
+`detect: 48746 signatures processed`
+
+4. Ignore errors for `hugepages` and `af-packet`
 
 

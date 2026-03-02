@@ -1,7 +1,36 @@
 # Intrusion Detection System
 
-## Ubunutu Server Setup
-`sudo apt update` and `sudo apt upgrade`
+## Raspberry Pi Ubunutu Server Setup
+
+1. Install Ubunutu 24.04 LTS server
+
+2. Update the Ubunutu server
+```shell
+sudo apt update && sudo apt upgrade -y
+```
+
+## Switch Configuration - Port Mirroring
+
+1. Log in to Netgear web GUI
+
+2. Navigate to port mirroring section
+```netgear-webgui
+Diagnostics -> Port Mirroring
+```
+
+3. Enable port mirroring
+
+4. Source port: `all ports besides the Raspberry Pi's port`
+
+5. Destination port: `the Raspberry Pi's port`
+
+6. Apply changes
+
+## Suricata Setup
+
+1. Install using: `sudo apt install -y suricata`
+
+2. Verify version: `suricata --build-info | grep "version"`
 
 ### Disable NIC Offloading
 
@@ -17,10 +46,4 @@
 
 3. Run a quick test to see some traffic: `sudo tcpdump -i eth0 -nn`
 
-## Suricata
 
-### Install Suricata
-
-1. Install using: `sudo apt install -y suricata`
-
-2. Verify version: `suricata --build-info | grep "Version"`

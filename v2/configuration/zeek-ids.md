@@ -4,6 +4,8 @@
 - [x] Complete installation, testing, and configuration for [Suricata IDS](suricata-ids.md)
 
 ## Zeek Setup
+
+### Enable Noble Updates
 1. Add noble updates to upgrade mismatch versions
 ```shell
 sudo nano /etc/apt/sources.list.d/ubuntu.sources
@@ -30,7 +32,8 @@ sudo apt autoclean
 sudo apt upgrade
 ```
 
-5. Install the dependencies
+### Install Dependencies and Zeek Source Code
+1. Install the dependencies
 ```shell
 sudo apt install -y \
   cmake make gcc g++ flex bison \
@@ -40,57 +43,68 @@ sudo apt install -y \
   libsqlite3-dev git curl
 ```
 
-6. Go to source directory
-```shell
-cd /usr/local/src
-```
-
-7. Install swig
+2. Install swig
 ```shell
 sudo apt install swig
 ```
 
-8. Download Zeek
+3. Go to source directory
+```shell
+cd /usr/local/src
+```
+
+4. Download Zeek
 ```shell
 sudo curl -LO https://download.zeek.org/zeek-8.0.6.tar.gz
+```
+```shell
 sudo tar -xzf zeek-8.0.6.tar.gz
+```
+```shell
 sudo chown -R $USER:$USER zeek-8.0.6
+```
+```shell
 cd zeek-8.0.6
-
+```
+```shell
 ./configure
 ```
 
-9. Compile it
+5. Compile the code
 ```shell
 make -j4
 ```
 
-10. Install
+6. Install
 ```shell
 sudo make install
 ```
 
-11. Add to path
+7. Add to path
 ```shell
 echo 'export PATH=/usr/local/zeek/bin:$PATH' >> ~/.bashrc
+```
+```shell
 source ~/.bashrc
 ```
 
-12. Verify
+8. Verify
 ```shell
 zeek --version
 ```
 
-13. Run a quick test
+### Test Zeek (optionl but recommended)
+1. Run a quick test
 ```shell
 sudo zeek -i eth0
 ```
 
-14. Create Zeek as a service
+2. Create Zeek as a service
 ```shell
 sudo nano /etc/systemd/system/zeek.service
 ```
-15. Paste and save
+
+3. Paste and save
 ```shell
 [Unit]
 Description=Zeek Network Security Monitor
@@ -107,7 +121,7 @@ User=root
 WantedBy=multi-user.target
 ```
 
-16. Enable it
+4. Enable it
 ```shell
 sudo systemctl daemon-reload
 ```
@@ -115,12 +129,12 @@ sudo systemctl daemon-reload
 sudo systemctl enable zeek
 ```
 
-17. Start the service
+5. Start the service
 ```shell
 sudo systemctl start zeek
 ```
 
-18. Check status
+6. Check status
 ```shell
 sudo systemctl status zeek
 ```
@@ -143,7 +157,7 @@ sudo nano /usr/local/zeek/share/zeek/site/local.zeek
 redef Intel::read_files += { "/usr/local/zeek/share/zeek/site/intel/malicious_ips.dat" };
 ```
 
-3. Redeploy
+4. Redeploy
 ```shell
 sudo /usr/local/zeek/bin/zeekctl deploy
 ```

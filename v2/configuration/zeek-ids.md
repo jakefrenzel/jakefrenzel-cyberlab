@@ -195,6 +195,22 @@ curl http://8.8.8.8
 ls /usr/local/zeek/logs/current
 ```
 
+### Enable Community ID
+1. Open Zeek config
+```shell
+sudo nano /usr/local/zeek/share/zeek/site/local.zeek
+```
+
+2. Edit the line that says: `# @load policy/protocols/conn/community-id-logging` and remove the comment so it becomes:
+```shell
+@load policy/protocols/conn/community-id-logging
+```
+
+3. Deploy
+```shell
+sudo /usr/local/zeek/bin/zeekctl deploy
+```
+
 Future:
 Later you can add real threat feeds like:
 - EmergingThreats

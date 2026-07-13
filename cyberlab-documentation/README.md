@@ -1,4 +1,4 @@
-# 🧪 CyberLab v2
+# 🧪 CyberLab Documentation
 
 This is the second iteration of my cybersecurity homelab, rebuilt to improve network design, documentation, and security posture based on lessons learned from v1.
 

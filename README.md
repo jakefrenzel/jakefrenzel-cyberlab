@@ -1,4 +1,4 @@
-# 💻 Jake’s Cyber Home Lab
+# 💻 Jake’s Cybersecurity & IT Networking Lab - Enterprise Grade
 
 ## 📖 Overview
 

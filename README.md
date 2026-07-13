@@ -1,10 +1,8 @@
-# 💻 Jake’s Cybersecurity & IT Networking Lab - Enterprise Grade
+> [!IMPORTANT]
+> This repository is a work in progess, started February 2026.
 
-## 📖 Overview
-
-This repository documents the design, implementation, and iteration of a personal cybersecurity homelab built to develop hands-on experience with network security, virtualization, firewall configuration, and secure infrastructure design.
-
-The lab is intentionally documented to be reproducible and educational, allowing others to follow the same process and learn from both the design decisions and lessons learned.
+# 💻 Jake’s Cybersecurity & IT Networking Lab
+This repository documents the design and implementation of a personal cybersecurity home lab built to develop hands-on experience with network security, virtualization, firewall configuration, and secure infrastructure design. The lab is designed to simulate an enterprise-grade network and is intentionally documented to be reproducible and educational, allowing others to follow the same process and learn from both the design decisions and lessons learned.
 
 ---
 

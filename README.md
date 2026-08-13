@@ -7,7 +7,7 @@ This repository documents the design and implementation of a personal cybersecur
 ---
 
 ## 🚀 Get started
-[**01 - Network Architecture:** Plan physical and logical network layout](<01 - Network Architecture.md>)
+[**01 - Network Architecture:** Plan physical and logical network layout](<cyberlab-documentation/01 - Network Architecture.md>)
 
 **02 - IP Schemes:** Plan IP ranges and VLANs
 

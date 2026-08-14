@@ -37,4 +37,14 @@ Document the physical and logical network architecture, including devices used, 
 | Guest | 60 | 10.27.60.1 | Guest internet access |
 | Monitoring | 70 | 10.27.70.1 | IDS, Suricata, monitoring, logging |
 
+## Steps taken
+1. Connected Protectli Vault WAN interface to modem
+2. Connected Protectli Vault LAN interface to Netgear switch port 1
+3. Connected Proxmox host to Netgear switch port 2
+4. Connected Raspberry Pi eth0 to Netgear switch port 3
+5. Connected Raspberry Pi eth1 to Netgear switch port 4
+
 ## Network Diagram
+
+## ➡️ Next Up
+[**02 - IP Schemes:** Plan IP ranges and VLANs](<02 - IP Schemes.md>)

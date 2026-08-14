@@ -46,5 +46,11 @@ Document the physical and logical network architecture, including devices used, 
 
 ## Network Diagram
 
+## Notes & Observations
+1. Seperating physical and logical connections and planning documentation made setup easier than winging it in v1
+2. Creating a network diagram allowed for a smooth and easy setup
+3. Determining switch ports beforehand helped maintain logical flow (prioritizing firewall in switch port 1)
+4. Planning logical design helped outline objectives and network segmentation
+
 ## ➡️ Next Up
 [**02 - IP Schemes:** Plan IP ranges and VLANs](<02 - IP Schemes.md>)

@@ -22,8 +22,7 @@ Document the physical and logical network architecture, including devices used, 
 | Proxmox Host | Switch port 2 | VLAN trunk |
 | Raspberry Pi | Switch port 3 | Port Mirroring |
 | Raspberry Pi | Switch port 4 | IDS |
-| Beryl AX | Switch Port 5 | Access port |
-| Admin PC | Switch port 6 | Temporary management |
+| Admin PC | Switch port 8 | Temporary management |
 
 ## Logical Network Design
 
@@ -38,6 +37,10 @@ Document the physical and logical network architecture, including devices used, 
 | Monitoring | 70 | 10.27.70.1 | IDS, Suricata, monitoring, logging |
 
 ## Steps taken
+- Listed all hardware devices and their purpose
+- Mapped physical connections between each device
+- Drafted guidelines for VLANs, subnetting, and future purpose
+
 1. Connected Protectli Vault WAN interface to modem
 2. Connected Protectli Vault LAN interface to Netgear switch port 1
 3. Connected Proxmox host to Netgear switch port 2

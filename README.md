@@ -17,11 +17,11 @@ This repository documents the design and implementation of a personal cybersecur
 ---
 
 ## 🎯 Objectives
-- [ ] Gain experience with firewall configuration and traffic control
+- [x] Gain experience with firewall configuration and traffic control
 - [ ] Practice documenting technical systems clearly and accurately
-- [ ] Design and implement a segmented network with VLANs
+- [x] Design and implement a segmented network with VLANs
 - [ ] Define firewall rules following the principle of least privilege
-- [ ] Implement intrusion detection and preventions sytems (IDPS)
+- [x] Implement intrusion detection and preventions sytems (IDPS)
 - [ ] Implement a VPN for secure remote connections over the public internet
 - [ ] Set up advanced monitoring and visibility with a SIEM
 - [ ] Apply security hardening across the network
@@ -30,8 +30,13 @@ This repository documents the design and implementation of a personal cybersecur
 ---
 
 ## 🛠 Technologies Used
-- pfSense (Firewall & routing)
-- Proxmox (Virtualization)
+- pfSense — Firewall, routing, and network management
+- Proxmox VE — Virtualization and VM management
+- VLANs — Network segmentation and isolation
+- Suricata — Network intrusion detection and prevention (IDS/IPS)
+- Zeek — Network security monitoring and traffic analysis
+- ELK Stack — Log collection, analysis, and visualization
+- Tailscale — Secure remote access and private networking
 
 ---
 

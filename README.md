@@ -1,6 +1,9 @@
 > [!IMPORTANT]
 > This repository is a work in progess, started February 2026.
 
+> [!NOTE]  
+> All IP addresses, hostnames, usernames, and other identifying network information shown in this documentation are examples or sanitized values. They are not the actual values used in my home lab, but they follow the same structure and format for documentation purposes.
+
 # 💻 Jake’s Cybersecurity & IT Networking Lab
 This repository documents the design and implementation of a personal cybersecurity home lab built to gain hands-on experience with network security, virtualization, firewall configuration, and secure infrastructure design. The lab is designed to simulate an enterprise-grade network and is intentionally documented to be reproducible and educational, allowing others to follow the same process and learn from both the design decisions and lessons learned.
 

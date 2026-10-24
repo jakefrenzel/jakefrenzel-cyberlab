@@ -1,0 +1,177 @@
+<mxfile host="drawio">
+  <diagram id="cyberlab-topology" name="Network Topology">
+    <mxGraphModel dx="1400" dy="1000" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1500" pageHeight="1000" background="#FFFFFF" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- Title -->
+        <mxCell id="title" value="&lt;b style=&quot;font-size:20px&quot;&gt;Cyberlab Network Topology&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size:12px;color:#666666&quot;&gt;Physical and logical layout · example / sanitized addressing&lt;/span&gt;" style="text;html=1;align=left;verticalAlign=top;whiteSpace=wrap;" vertex="1" parent="1">
+          <mxGeometry x="40" y="20" width="480" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- Internet / modem / firewall / switch -->
+        <mxCell id="internet" value="Internet" style="ellipse;shape=cloud;whiteSpace=wrap;html=1;fillColor=#F5F5F5;strokeColor=#666666;fontColor=#333333;" vertex="1" parent="1">
+          <mxGeometry x="575" y="30" width="110" height="65" as="geometry" />
+        </mxCell>
+        <mxCell id="modem" value="ISP Modem" style="shape=mxgraph.cisco.modems_and_phones.cable_modem;html=1;pointerEvents=1;dashed=0;fillColor=#036897;strokeColor=#ffffff;strokeWidth=2;labelPosition=right;verticalLabelPosition=middle;align=left;verticalAlign=middle;spacingLeft=8;outlineConnect=0;" vertex="1" parent="1">
+          <mxGeometry x="598" y="140" width="64" height="32" as="geometry" />
+        </mxCell>
+        <mxCell id="pfsense" value="" style="shape=mxgraph.cisco.security.firewall;html=1;pointerEvents=1;dashed=0;fillColor=#036897;strokeColor=#ffffff;strokeWidth=2;outlineConnect=0;" vertex="1" parent="1">
+          <mxGeometry x="598" y="225" width="64" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="pfsense-label" value="&lt;b&gt;pfSense&lt;/b&gt; · Protectli VP2440&lt;br&gt;Gateways 10.27.10.1 – 10.27.70.1&lt;br&gt;DNS resolver · DHCP on VLANs 20–70" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=wrap;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="680" y="217" width="260" height="66" as="geometry" />
+        </mxCell>
+        <mxCell id="switch" value="" style="shape=mxgraph.cisco.switches.workgroup_switch;html=1;pointerEvents=1;dashed=0;fillColor=#036897;strokeColor=#ffffff;strokeWidth=2;outlineConnect=0;" vertex="1" parent="1">
+          <mxGeometry x="580" y="400" width="100" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="switch-label" value="&lt;b&gt;Netgear GS308EP&lt;/b&gt;&lt;br&gt;Mgmt 10.27.10.2 · VLAN 10&lt;br&gt;Mirror: port 1 → port 3" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=wrap;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="700" y="340" width="220" height="56" as="geometry" />
+        </mxCell>
+
+        <!-- Proxmox host -->
+        <mxCell id="proxmox" value="&lt;b&gt;Proxmox VE host&lt;/b&gt; · 10.27.10.3 (VLAN 10 mgmt)" style="rounded=1;arcSize=3;whiteSpace=wrap;html=1;fillColor=#FAFAFA;strokeColor=#666666;verticalAlign=top;align=left;spacingLeft=10;spacingTop=6;fontSize=12;container=1;" vertex="1" parent="1">
+          <mxGeometry x="40" y="560" width="480" height="370" as="geometry" />
+        </mxCell>
+        <mxCell id="vm-kali" value="&lt;b&gt;Kali Linux&lt;/b&gt;&lt;br&gt;VLAN 40 · DHCP" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F8CECC;strokeColor=#B85450;fontSize=11;strokeWidth=2;" vertex="1" parent="proxmox">
+          <mxGeometry x="20" y="50" width="210" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="vm-elk" value="&lt;b&gt;ELK Stack VM&lt;/b&gt;&lt;br&gt;10.27.10.5 · VLAN 10&lt;br&gt;Elasticsearch · Logstash · Kibana" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#DAE8FC;strokeColor=#6C8EBF;fontSize=11;strokeWidth=2;" vertex="1" parent="proxmox">
+          <mxGeometry x="250" y="50" width="210" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="vm-msf" value="&lt;b&gt;Metasploitable&lt;/b&gt;&lt;br&gt;10.27.40.10 · VLAN 40" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F8CECC;strokeColor=#B85450;dashed=1;fontSize=11;" vertex="1" parent="proxmox">
+          <mxGeometry x="20" y="130" width="210" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="vm-web" value="&lt;b&gt;Web Server&lt;/b&gt;&lt;br&gt;10.27.30.10 · VLAN 30" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF2CC;strokeColor=#D6B656;dashed=1;fontSize=11;" vertex="1" parent="proxmox">
+          <mxGeometry x="250" y="130" width="210" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="vm-db" value="&lt;b&gt;Database Server&lt;/b&gt;&lt;br&gt;10.27.30.11 · VLAN 30" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF2CC;strokeColor=#D6B656;dashed=1;fontSize=11;" vertex="1" parent="proxmox">
+          <mxGeometry x="20" y="210" width="210" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="vm-pubweb" value="&lt;b&gt;Public Web Server&lt;/b&gt;&lt;br&gt;10.27.50.10 · VLAN 50" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E1D5E7;strokeColor=#9673A6;dashed=1;fontSize=11;" vertex="1" parent="proxmox">
+          <mxGeometry x="250" y="210" width="210" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="vm-grafana" value="&lt;b&gt;Grafana&lt;/b&gt;&lt;br&gt;10.27.70.30 · VLAN 70" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFE6CC;strokeColor=#D79B00;dashed=1;fontSize=11;" vertex="1" parent="proxmox">
+          <mxGeometry x="20" y="290" width="210" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- Raspberry Pi sensor -->
+        <mxCell id="pi" value="" style="rounded=1;arcSize=6;whiteSpace=wrap;html=1;fillColor=#FAFAFA;strokeColor=#666666;container=1;" vertex="1" parent="1">
+          <mxGeometry x="640" y="580" width="270" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="pi-eth0" value="&lt;b&gt;eth0&lt;/b&gt;&lt;br&gt;capture · no IP" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#C2185B;fontSize=11;" vertex="1" parent="pi">
+          <mxGeometry x="10" y="12" width="120" height="44" as="geometry" />
+        </mxCell>
+        <mxCell id="pi-usb" value="&lt;b&gt;USB NIC&lt;/b&gt;&lt;br&gt;10.27.10.7 · mgmt" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#DAE8FC;strokeColor=#6C8EBF;fontSize=11;" vertex="1" parent="pi">
+          <mxGeometry x="140" y="12" width="120" height="44" as="geometry" />
+        </mxCell>
+        <mxCell id="pi-title" value="&lt;b&gt;Raspberry Pi 5&lt;/b&gt; · IDS sensor&lt;br&gt;&lt;span style=&quot;font-size:11px;color:#333333&quot;&gt;Suricata · Zeek · Filebeat&lt;/span&gt;" style="text;html=1;align=center;verticalAlign=middle;fontSize=12;" vertex="1" parent="pi">
+          <mxGeometry x="10" y="70" width="250" height="44" as="geometry" />
+        </mxCell>
+        <mxCell id="planned-move" value="&lt;b&gt;Planned:&lt;/b&gt; move sensor → 10.27.70.10 and&lt;br&gt;ELK → 10.27.70.20 (VLAN 70 Monitoring)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFE6CC;strokeColor=#D79B00;dashed=1;fontSize=11;align=left;spacingLeft=8;" vertex="1" parent="1">
+          <mxGeometry x="640" y="730" width="270" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- Admin PC -->
+        <mxCell id="adminpc" value="&lt;b&gt;Admin PC&lt;/b&gt;&lt;br&gt;static IP · VLAN 10" style="shape=mxgraph.cisco.computers_and_peripherals.laptop;html=1;pointerEvents=1;dashed=0;fillColor=#036897;strokeColor=#ffffff;strokeWidth=2;verticalLabelPosition=bottom;verticalAlign=top;align=center;outlineConnect=0;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="1005" y="600" width="70" height="45" as="geometry" />
+        </mxCell>
+
+        <!-- Links -->
+        <mxCell id="e-internet-modem" style="endArrow=none;html=1;strokeWidth=2;strokeColor=#333333;" edge="1" parent="1" source="internet" target="modem">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-modem-pfsense" value="WAN" style="endArrow=none;html=1;strokeWidth=2;strokeColor=#333333;labelBackgroundColor=#FFFFFF;fontSize=11;" edge="1" parent="1" source="modem" target="pfsense">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-pfsense-switch" value="LAN → Port 1&lt;br&gt;802.1Q trunk · VLANs 10–70" style="endArrow=none;html=1;strokeWidth=4;strokeColor=#333333;labelBackgroundColor=#FFFFFF;fontSize=11;" edge="1" parent="1" source="pfsense" target="switch">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-switch-proxmox" value="Port 2 · 802.1Q trunk" style="endArrow=none;html=1;strokeWidth=4;strokeColor=#333333;labelBackgroundColor=#FFFFFF;fontSize=11;edgeStyle=orthogonalEdgeStyle;rounded=0;exitX=0;exitY=0.5;entryX=0.5;entryY=0;" edge="1" parent="1" source="switch" target="proxmox">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-switch-eth0" style="endArrow=block;endFill=1;html=1;strokeWidth=2;strokeColor=#C2185B;dashed=1;edgeStyle=orthogonalEdgeStyle;rounded=0;exitX=0.35;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="switch" target="pi-eth0">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="615" y="540" />
+              <mxPoint x="710" y="540" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e-switch-eth0-t" value="Port 3&lt;br&gt;mirror destination" style="text;html=1;align=right;verticalAlign=middle;fontSize=11;fontColor=#C2185B;" vertex="1" parent="1">
+          <mxGeometry x="480" y="472" width="128" height="36" as="geometry" />
+        </mxCell>
+        <mxCell id="e-switch-usb" style="endArrow=none;html=1;strokeWidth=2;strokeColor=#333333;edgeStyle=orthogonalEdgeStyle;rounded=0;exitX=0.75;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="switch" target="pi-usb">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="655" y="500" />
+              <mxPoint x="840" y="500" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e-switch-usb-t" value="Port 4 · VLAN 10 access" style="text;html=1;align=left;verticalAlign=middle;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="700" y="478" width="160" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="e-switch-admin" value="Port 8 · VLAN 10 access" style="endArrow=none;html=1;strokeWidth=2;strokeColor=#333333;labelBackgroundColor=#FFFFFF;fontSize=11;edgeStyle=orthogonalEdgeStyle;rounded=0;exitX=1;exitY=0.5;entryX=0.5;entryY=0;" edge="1" parent="1" source="switch" target="adminpc">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-logs" value="Filebeat → Logstash&lt;br&gt;5044/tcp" style="endArrow=block;endFill=1;html=1;strokeWidth=2;strokeColor=#7B1FA2;dashed=1;dashPattern=1 3;labelBackgroundColor=#FFFFFF;fontSize=11;fontColor=#7B1FA2;edgeStyle=orthogonalEdgeStyle;rounded=0;exitX=0;exitY=0.6;entryX=1;entryY=0.5;" edge="1" parent="1" source="pi" target="vm-elk">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- VLAN key -->
+        <mxCell id="vlan-key" value="&lt;b&gt;VLANs&lt;/b&gt;&lt;table style=&quot;font-size:11px;border-collapse:collapse;margin-top:6px&quot; cellpadding=&quot;3&quot;&gt;&lt;tr&gt;&lt;td style=&quot;background:#DAE8FC;width:14px;border:1px solid #6C8EBF&quot;&gt;&lt;/td&gt;&lt;td&gt;10&lt;/td&gt;&lt;td&gt;Management&lt;/td&gt;&lt;td&gt;10.27.10.0/24&lt;/td&gt;&lt;td&gt;static only&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td style=&quot;background:#D5E8D4;border:1px solid #82B366&quot;&gt;&lt;/td&gt;&lt;td&gt;20&lt;/td&gt;&lt;td&gt;Workstations&lt;/td&gt;&lt;td&gt;10.27.20.0/24&lt;/td&gt;&lt;td&gt;DHCP .100–.199&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td style=&quot;background:#FFF2CC;border:1px solid #D6B656&quot;&gt;&lt;/td&gt;&lt;td&gt;30&lt;/td&gt;&lt;td&gt;Servers&lt;/td&gt;&lt;td&gt;10.27.30.0/24&lt;/td&gt;&lt;td&gt;DHCP .100–.199&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td style=&quot;background:#F8CECC;border:1px solid #B85450&quot;&gt;&lt;/td&gt;&lt;td&gt;40&lt;/td&gt;&lt;td&gt;Lab&lt;/td&gt;&lt;td&gt;10.27.40.0/24&lt;/td&gt;&lt;td&gt;DHCP .100–.199&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td style=&quot;background:#E1D5E7;border:1px solid #9673A6&quot;&gt;&lt;/td&gt;&lt;td&gt;50&lt;/td&gt;&lt;td&gt;DMZ&lt;/td&gt;&lt;td&gt;10.27.50.0/24&lt;/td&gt;&lt;td&gt;DHCP .100–.199&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td style=&quot;background:#F5F5F5;border:1px solid #666666&quot;&gt;&lt;/td&gt;&lt;td&gt;60&lt;/td&gt;&lt;td&gt;Guest&lt;/td&gt;&lt;td&gt;10.27.60.0/24&lt;/td&gt;&lt;td&gt;DHCP .100–.199&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td style=&quot;background:#FFE6CC;border:1px solid #D79B00&quot;&gt;&lt;/td&gt;&lt;td&gt;70&lt;/td&gt;&lt;td&gt;Monitoring&lt;/td&gt;&lt;td&gt;10.27.70.0/24&lt;/td&gt;&lt;td&gt;DHCP .100–.199&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;" style="rounded=1;arcSize=4;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#999999;align=left;verticalAlign=top;spacing=10;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="1130" y="30" width="340" height="190" as="geometry" />
+        </mxCell>
+
+        <!-- Line legend -->
+        <mxCell id="legend" value="&lt;b&gt;Legend&lt;/b&gt;" style="rounded=1;arcSize=4;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#999999;align=left;verticalAlign=top;spacing=10;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="1130" y="240" width="340" height="200" as="geometry" />
+        </mxCell>
+        <mxCell id="lg-trunk" style="endArrow=none;html=1;strokeWidth=4;strokeColor=#333333;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1145" y="285" as="sourcePoint" />
+            <mxPoint x="1205" y="285" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="lg-trunk-t" value="802.1Q trunk (tagged VLANs)" style="text;html=1;align=left;verticalAlign=middle;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="1220" y="275" width="240" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="lg-access" style="endArrow=none;html=1;strokeWidth=2;strokeColor=#333333;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1145" y="315" as="sourcePoint" />
+            <mxPoint x="1205" y="315" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="lg-access-t" value="Access port (single untagged VLAN)" style="text;html=1;align=left;verticalAlign=middle;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="1220" y="305" width="240" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="lg-mirror" style="endArrow=block;endFill=1;html=1;strokeWidth=2;strokeColor=#C2185B;dashed=1;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1145" y="345" as="sourcePoint" />
+            <mxPoint x="1205" y="345" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="lg-mirror-t" value="Port mirror (copy of port 1 traffic)" style="text;html=1;align=left;verticalAlign=middle;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="1220" y="335" width="240" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="lg-logs" style="endArrow=block;endFill=1;html=1;strokeWidth=2;strokeColor=#7B1FA2;dashed=1;dashPattern=1 3;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1145" y="375" as="sourcePoint" />
+            <mxPoint x="1205" y="375" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="lg-logs-t" value="Logical log flow (not a cable)" style="text;html=1;align=left;verticalAlign=middle;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="1220" y="365" width="240" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="lg-planned" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#666666;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="1145" y="395" width="60" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="lg-planned-t" value="Planned, not built yet" style="text;html=1;align=left;verticalAlign=middle;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="1220" y="399" width="240" height="20" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

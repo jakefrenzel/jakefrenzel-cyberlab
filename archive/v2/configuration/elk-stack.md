@@ -49,7 +49,8 @@ inspection) logs, parses them, and presents them in **Kibana** dashboards.
 > for the full dual-NIC build.
 
 > **Example IPs used below** (adjust to your scheme — Management VLAN10 is
-> `10.27.10.0/24`, DHCP pool starts at `.100`, so servers sit below it):
+> `10.27.10.0/24` and static-only, with core infrastructure in `.2`–`.9`; see
+> [02 - IP Schemes](<../../../cyberlab-documentation/02 - IP Schemes.md>)):
 > - ELK VM: `10.27.10.5`
 > - Pi sensor (management IP, on the USB NIC): `10.27.10.7`
 

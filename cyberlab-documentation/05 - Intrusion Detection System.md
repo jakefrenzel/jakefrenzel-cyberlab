@@ -204,10 +204,10 @@ present with no address is the correct state for a capture interface.
 In the Netgear GS308EP web GUI:
 
 ```netgear-web-gui
-System -> Monitoring -> Mirroring
+Diagnostics -> Port Mirroring
 ```
 
-(Older firmware: `Diagnostics -> Port Mirroring`)
+The full switch configuration, including the VLANs on these ports, is in [04 - Managed Switch](<04 - Managed Switch.md>).
 
 | Setting | Value |
 |---------|-------|

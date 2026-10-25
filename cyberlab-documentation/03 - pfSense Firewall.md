@@ -266,7 +266,7 @@ Interfaces -> LAN
 ```
    Set **IPv4 Configuration Type** to **None**, saved, and applied
 
-`igc1` stays assigned as the parent of the VLANs, it just no longer carries an untagged network. The anti-lockout rule goes with it, and VLAN10 rule 1 takes its place.
+`igc1` stays assigned as the parent of the VLANs, it just no longer carries an untagged network. The anti-lockout rule still appears on the LAN rules tab, but it targets the LAN address, which no longer exists, so it matches nothing. VLAN10 rule 1 now provides GUI access.
 
 > [!TIP]
 > Recovery without the bootstrap LAN: connect a monitor and keyboard to the Protectli and use the console menu. **Option 2** sets an interface's IP address, which is enough to get back into the GUI.
@@ -312,4 +312,4 @@ Blocked results confirm the firewall rules, not a broken network: DNS and intern
 6. The domain `cyberlab.arpa` works for a lab, but the name officially reserved for home networks is `home.arpa` (RFC 8375)
 
 ## ➡️ Next Up
-[**05 - Intrusion Detection System:** Deploy Suricata and Zeek on mirrored traffic](<05 - Intrusion Detection System.md>)
+[**04 - Managed Switch:** Configure 802.1Q VLANs, trunk and access ports, and port mirroring](<04 - Managed Switch.md>)

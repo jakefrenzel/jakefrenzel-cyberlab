@@ -16,6 +16,8 @@ This repository documents the design and implementation of a personal cybersecur
 
 [**03 - pfSense Firewall:** Install pfSense and configure VLANs, DHCP, DNS, and firewall rules](<cyberlab-documentation/03 - pfSense Firewall.md>)
 
+[**04 - Managed Switch:** Configure 802.1Q VLANs, trunk and access ports, and port mirroring](<cyberlab-documentation/04 - Managed Switch.md>)
+
 [**05 - Intrusion Detection System:** Deploy Suricata and Zeek on mirrored traffic](<cyberlab-documentation/05 - Intrusion Detection System.md>)
 
 [**06 - Kubernetes Lab Node:** Proxmox, Terraform, and Talos Linux as code](<cyberlab-documentation/06 - Kubernetes Lab Node.md>)

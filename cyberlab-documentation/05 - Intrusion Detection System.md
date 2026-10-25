@@ -1,4 +1,4 @@
-# 🛡️ 04 - Intrusion Detection System
+# 🛡️ 05 - Intrusion Detection System
 
 ## Objective
 
@@ -472,4 +472,4 @@ future hardening.
   as traffic grows.
 
 ## ➡️ Next Up
-[**05 - Kubernetes Lab Node:** Proxmox, Terraform, and Talos Linux as code](<05 - Kubernetes Lab Node.md>)
+[**06 - Kubernetes Lab Node:** Proxmox, Terraform, and Talos Linux as code](<06 - Kubernetes Lab Node.md>)

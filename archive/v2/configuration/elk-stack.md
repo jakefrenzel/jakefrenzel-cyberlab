@@ -45,7 +45,7 @@ inspection) logs, parses them, and presents them in **Kibana** dashboards.
 > back out over the same `eth0` it captures on. Use a **separate management
 > interface** to ship logs. This lab uses a USB-Ethernet adapter: capture on
 > `eth0` (no IP), ship over the USB NIC. See
-> [04 - Intrusion Detection System](<../../../cyberlab-documentation/04 - Intrusion Detection System.md>)
+> [05 - Intrusion Detection System](<../../../cyberlab-documentation/05 - Intrusion Detection System.md>)
 > for the full dual-NIC build.
 
 > **Example IPs used below** (adjust to your scheme — Management VLAN10 is

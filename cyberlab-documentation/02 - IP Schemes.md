@@ -41,7 +41,7 @@ Every VLAN follows the same layout for the last octet, so any address tells you 
 | Raspberry Pi (management NIC) | 10 | 10.27.10.7 | IDS sensor management and log shipping |
 
 > [!NOTE]
-> The Raspberry Pi has two network interfaces. Only the USB management NIC has an IP. The built-in `eth0` is the capture interface on the mirror port and intentionally has **no IP address**. See [04 - Intrusion Detection System](<04 - Intrusion Detection System.md>).
+> The Raspberry Pi has two network interfaces. Only the USB management NIC has an IP. The built-in `eth0` is the capture interface on the mirror port and intentionally has **no IP address**. See [05 - Intrusion Detection System](<05 - Intrusion Detection System.md>).
 
 ## Planned Static IPs
 

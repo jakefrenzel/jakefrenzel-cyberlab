@@ -1,4 +1,4 @@
-# ☸️ 05 - Kubernetes Lab Node
+# ☸️ 06 - Kubernetes Lab Node
 
 > [!NOTE]
 > In progress. The three-node Talos cluster is built and managed by Terraform. CI with GitHub Actions and the first workloads are next.

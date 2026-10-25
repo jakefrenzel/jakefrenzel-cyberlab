@@ -312,4 +312,4 @@ Blocked results confirm the firewall rules, not a broken network: DNS and intern
 6. The domain `cyberlab.arpa` works for a lab, but the name officially reserved for home networks is `home.arpa` (RFC 8375)
 
 ## ➡️ Next Up
-[**04 - Intrusion Detection System:** Deploy Suricata and Zeek on mirrored traffic](<04 - Intrusion Detection System.md>)
+[**05 - Intrusion Detection System:** Deploy Suricata and Zeek on mirrored traffic](<05 - Intrusion Detection System.md>)

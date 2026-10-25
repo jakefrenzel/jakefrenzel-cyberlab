@@ -3,7 +3,7 @@
 Open work items, with enough context to pick up cold in a later session.
 
 > Last updated: 2026-08-15, after completing the dual-NIC IDS build documented in
-> [04 - Intrusion Detection System](<cyberlab-documentation/04 - Intrusion Detection System.md>).
+> [05 - Intrusion Detection System](<cyberlab-documentation/05 - Intrusion Detection System.md>).
 
 ---
 

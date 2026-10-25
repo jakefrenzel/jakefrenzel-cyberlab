@@ -84,4 +84,4 @@ Every VLAN follows the same layout for the last octet, so any address tells you 
 4. A single wrong octet can break things silently: Filebeat was pointed at `10.27.0.5` instead of `10.27.10.5` and failed without an obvious error. Check addresses against this table when configuring services
 
 ## ➡️ Next Up
-[**04 - Intrusion Detection System:** Deploy Suricata and Zeek on mirrored traffic](<04 - Intrusion Detection System.md>)
+[**03 - pfSense Firewall:** Install pfSense and configure VLANs, DHCP, DNS, and firewall rules](<03 - pfSense Firewall.md>)

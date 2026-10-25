@@ -370,6 +370,12 @@ nmap -A 10.27.10.3
 > firewall.** Pick a target behind the switch, or scan from a VLAN 40 host
 > against a VLAN 30 target so the traffic is routed across port 1.
 
+> [!NOTE]
+> The firewall blocks Lab (VLAN 40) from reaching other VLANs. Before scanning a
+> VLAN 30 target, enable the **Lab exercises: Lab → Servers** rule under
+> `Firewall -> Rules -> VLAN40`, and disable it again when the exercise is done.
+> See [03 - pfSense Firewall](<03 - pfSense Firewall.md>).
+
 Check for alerts:
 
 ```shell

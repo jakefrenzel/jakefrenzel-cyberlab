@@ -14,6 +14,8 @@ This repository documents the design and implementation of a personal cybersecur
 
 [**02 - IP Schemes:** Plan IP ranges and VLANs](<cyberlab-documentation/02 - IP Schemes.md>)
 
+[**03 - pfSense Firewall:** Install pfSense and configure VLANs, DHCP, DNS, and firewall rules](<cyberlab-documentation/03 - pfSense Firewall.md>)
+
 [**04 - Intrusion Detection System:** Deploy Suricata and Zeek on mirrored traffic](<cyberlab-documentation/04 - Intrusion Detection System.md>)
 
 [**05 - Kubernetes Lab Node:** Proxmox, Terraform, and Talos Linux as code](<cyberlab-documentation/05 - Kubernetes Lab Node.md>)

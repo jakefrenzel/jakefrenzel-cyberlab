@@ -28,7 +28,7 @@ This repository documents the design and implementation of a personal cybersecur
 - [x] Gain experience with firewall configuration and traffic control
 - [ ] Practice documenting technical systems clearly and accurately
 - [x] Design and implement a segmented network with VLANs
-- [ ] Define firewall rules following the principle of least privilege
+- [x] Define firewall rules following the principle of least privilege
 - [x] Implement intrusion detection and preventions sytems (IDPS)
 - [ ] Implement a VPN for secure remote connections over the public internet
 - [ ] Set up advanced monitoring and visibility with a SIEM

@@ -2,25 +2,45 @@
 
 Open work items, with enough context to pick up cold in a later session.
 
-> Last updated: 2026-08-15, after completing the dual-NIC IDS build documented in
-> [05 - Intrusion Detection System](<cyberlab-documentation/05 - Intrusion Detection System.md>).
+> Last updated: 2026-10-24, after documenting and applying
+> [03 - pfSense Firewall](<cyberlab-documentation/03 - pfSense Firewall.md>) and
+> [04 - Managed Switch](<cyberlab-documentation/04 - Managed Switch.md>).
 
 ---
 
 ## Current State (for context)
 
-The IDS is **fully working** as of 2026-08-15:
+**Network** (as of 2026-10-24):
+
+- pfSense CE 2.8.1 routes VLANs 10 – 70 with Kea DHCP (none on Management) and least-privilege rules per VLAN
+- The untagged bootstrap LAN is removed; the switch trunks use black-hole native VLAN 700
+- Switch management is on VLAN 10, mirroring port 1 → port 3
+- Remote access is through the Tailscale package on pfSense, advertising the Management subnet only
+
+**IDS** (built 2026-08-15, see [05 - Intrusion Detection System](<cyberlab-documentation/05 - Intrusion Detection System.md>)):
 
 - Raspberry Pi 5 sensor (`ids-sensor`), Ubuntu 24.04 LTS
 - `eth0` (built-in) = capture, no IP, promiscuous, on switch port 3 (mirror destination)
 - USB-Ethernet adapter = management, `10.27.10.7/24`, sole default route, switch port 4
-- Switch mirroring: source port 1 (pfSense trunk) → destination port 3
 - Suricata + Zeek → Filebeat → Logstash → Elasticsearch → Kibana
-- ELK VM at `10.27.10.5`, all on **VLAN 10 (Management)**
 - Suricata rules auto-update daily at 3am, live reload via `SIGUSR2`
-- Verified end to end with an `nmap` scan producing `ET SCAN` alerts in Kibana
+- **The ELK VM (`10.27.10.5`) is currently powered off.** The pipeline was verified end to end on 2026-08-15 with an `nmap` scan producing `ET SCAN` alerts in Kibana
 
 Nothing below is required for the lab to function. These are improvements.
+
+---
+
+## 0. Follow-ups from 2026-10-24
+
+**Priority: high** — small items left over from the firewall and switch work
+
+- **Start the ELK VM** and confirm it comes up on its static `10.27.10.5`. Management has no DHCP anymore, so a VM without a static IP gets no address
+- **Tailscale on the Proxmox host**, so it is reachable even when routing through pfSense fails (as on `pve1`)
+- **Proxmox laptop settings**: ignore lid close, and set the BIOS to power on after power loss
+- **Proxmox USB network adapter**: its only NIC is a USB adapter. Replace it with a more reliable one, or a built-in NIC if available
+- **Watch pfSense `igc1`**: on 2026-10-24 the LAN port stopped receiving and the whole lab went dark until pfSense was rebooted. If it happens again, check `Status -> Interfaces -> LAN` first, then suspect the cable to switch port 1 or the port itself
+- **Switch Access Control** (do it at home, lockout risk): allow only the Management subnet and the Tailscale range to reach the switch GUI
+- **Optional cleanups**: delete the unused NordVPN client on pfSense, find out what the running FreeRADIUS service is for, and set the switch's time zone to Central
 
 ---
 
@@ -38,7 +58,7 @@ while getting everything working for the first time.
 inter-VLAN one and requires pfSense rules to keep working — more moving parts
 than moving the pair.
 
-Planned addressing (from `archive/v2/setup/implementation/02-ip_schemes_implementation.md`):
+Planned addressing (from [02 - IP Schemes](<cyberlab-documentation/02 - IP Schemes.md>)):
 
 | Host | Current | Target |
 |------|---------|--------|
@@ -46,13 +66,14 @@ Planned addressing (from `archive/v2/setup/implementation/02-ip_schemes_implemen
 | ELK VM | `10.27.10.5` | `10.27.70.20` |
 
 **Steps:**
-1. Create VLAN 70 interface + DHCP scope on pfSense if not already present
-2. Set switch **port 4** (sensor management) to PVID 70 untagged
-3. Move the Proxmox ELK VM to a VLAN 70 tagged bridge
-4. Re-address both hosts (`netplan set ... --origin-hint 98-usb-mgmt` on the Pi)
-5. Update `output.logstash.hosts` in `/etc/filebeat/filebeat.yml`
-6. Update `server.publicBaseUrl` in `/etc/kibana/kibana.yml`
-7. Add a pfSense rule: admin workstation → ELK VM `5601/tcp` (Kibana)
+1. On the switch, make **port 4** (sensor management) an untagged member of VLAN 70, set its PVID to 70, and remove it from VLAN 10
+2. In Proxmox, change the ELK VM's network device **VLAN Tag** from `10` to `70`
+3. Re-address both hosts (`netplan set ... --origin-hint 98-usb-mgmt` on the Pi)
+4. Update `output.logstash.hosts` in `/etc/filebeat/filebeat.yml`
+5. Update `server.publicBaseUrl` in `/etc/kibana/kibana.yml`
+6. To reach Kibana over Tailscale, add `10.27.70.0/24` to pfSense's advertised Tailscale routes and to the tailnet policy
+
+No new pfSense rules are needed: VLAN 70 already exists with DHCP, the sensor and ELK stay on the same subnet, and Management (VLAN 10) is allowed to reach every VLAN, including Kibana on VLAN 70.
 
 **Gotchas:**
 - The capture NIC (`eth0`) is **not** involved — it has no IP and stays on port 3.
@@ -61,8 +82,8 @@ Planned addressing (from `archive/v2/setup/implementation/02-ip_schemes_implemen
 - Verify with `sudo filebeat test output` before assuming it works — a wrong
   address fails **silently and indefinitely** (this exact bug cost hours on
   2026-08-15: `10.27.0.5` instead of `10.27.10.5`).
-- Check for stale references to the old sensor IP outside the Pi: pfSense DHCP
-  static mappings, firewall rules, Tailscale ACLs, SSH configs.
+- Check for stale references to the old sensor IP outside the Pi: firewall rules,
+  Tailscale ACLs, SSH configs.
 
 ---
 
@@ -165,9 +186,8 @@ rotation plus `zeekctl cron`).
 
 ## 7. Documentation Gaps
 
-- `01 - Network Architecture.md` shows the Pi on switch ports 3 and 4 — verify it
-  reflects the final wiring, and note which port is the mirror destination
-- The IP scheme table in
-  `archive/v2/setup/implementation/02-ip_schemes_implementation.md` assigns
-  `10.27.30.10` to **both** Web Server and Database Server (lines 47–48). Fix
-  before building out VLAN 30.
+- **Proxmox host guide**: install, VLAN-aware `vmbr0` with the host on `vmbr0.10`, VM VLAN tags, and the follow-ups in section 0
+- **Tailscale guide**: pfSense package, advertised routes, tailnet policy, and the tagged honeypot sensor
+- **ELK guide** still lives in `archive/v2/configuration/elk-stack.md`. Move it into `cyberlab-documentation/` as a numbered guide
+- **Suricata and Zeek installation**, and the daily rule-update job, are only documented in the v2 archive and this file
+- **01 and the network diagram**: add the HP EliteDesk (`pve1`) and the VLAN 700 black hole once `pve1` is home

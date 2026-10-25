@@ -39,6 +39,7 @@ Every VLAN follows the same layout for the last octet, so any address tells you 
 | Proxmox Host | 10 | 10.27.10.3 | Virtualization management (web GUI on port 8006) |
 | ELK Stack VM | 10 | 10.27.10.5 | Log ingestion and dashboards |
 | Raspberry Pi (management NIC) | 10 | 10.27.10.7 | IDS sensor management and log shipping |
+| Admin PC (on switch port 8) | 10 | 10.27.10.200 | Management workstation, set manually since Management has no DHCP |
 
 > [!NOTE]
 > The Raspberry Pi has two network interfaces. Only the USB management NIC has an IP. The built-in `eth0` is the capture interface on the mirror port and intentionally has **no IP address**. See [05 - Intrusion Detection System](<05 - Intrusion Detection System.md>).
@@ -47,6 +48,7 @@ Every VLAN follows the same layout for the last octet, so any address tells you 
 
 | Device | VLAN | IP Address | Purpose |
 |--------|------|------------|---------|
+| pve1 (HP EliteDesk) | 10 | 10.27.10.10 | Second Proxmox node, once it moves home (see [06 - Kubernetes Lab Node](<06 - Kubernetes Lab Node.md>)) |
 | Web Server | 30 | 10.27.30.10 | Hosting internal apps |
 | Database Server | 30 | 10.27.30.11 | Backend for lab services |
 | Metasploitable | 40 | 10.27.40.10 | Exploitation practice |

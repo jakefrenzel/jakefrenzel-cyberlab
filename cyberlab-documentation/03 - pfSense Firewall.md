@@ -1,7 +1,7 @@
 # 🔥 03 - pfSense Firewall
 
 ## Objective
-Take the Protectli Vault from a blank box to the lab's router and firewall: all seven VLANs routed, DHCP and DNS served on each one, and firewall rules that keep the untrusted networks away from Management and from each other.
+Take the Protectli Vault from a blank box to the lab's router and firewall: all seven VLANs routed, DNS served on each one, DHCP on every VLAN except Management, and firewall rules that keep the untrusted networks away from Management and from each other.
 
 ## Hardware
 | Device | Purpose |

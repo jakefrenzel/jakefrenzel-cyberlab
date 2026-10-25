@@ -500,13 +500,18 @@ sudo systemctl enable --now filebeat
 
 # Part 6 — Firewall (pfSense) rules
 
-Allow the sensor to reach the ELK VM and your workstation to reach Kibana.
-Keep these ports off untrusted VLANs.
+No extra pfSense rules are needed with this layout. The sensor and the ELK VM are
+both on Management (VLAN 10), so Filebeat → Logstash never crosses the firewall.
 
-| Source | Destination | Port | Purpose |
-|--------|-------------|------|---------|
-| Pi sensor | ELK VM | `5044/tcp` | Filebeat → Logstash |
-| Your workstation | ELK VM | `5601/tcp` | Browser → Kibana |
+| Source | Destination | Port | Purpose | Allowed by |
+|--------|-------------|------|---------|------------|
+| Pi sensor | ELK VM | `5044/tcp` | Filebeat → Logstash | Same subnet, no firewall involved |
+| Management (VLAN 10) or Tailscale | ELK VM | `5601/tcp` | Browser → Kibana | VLAN10 "allow to anywhere" rule |
+| VLANs 20 – 70 | ELK VM | Any | — | **Blocked** by the `PRIVATE_NETWORKS` rule |
+
+Open Kibana from a Management device or over Tailscale. Workstations (VLAN 20) and
+the other VLANs cannot reach it by design, see
+[03 - pfSense Firewall](<../../../cyberlab-documentation/03 - pfSense Firewall.md>).
 
 > Do **not** expose `9200` (Elasticsearch) or `5601` (Kibana) to the internet or
 > to lab/user VLANs. Logstash → Elasticsearch stays on `localhost`.
@@ -515,13 +520,16 @@ Keep these ports off untrusted VLANs.
 
 # Part 7 — Kibana Dashboards
 
-1. Generate some traffic so there's data. From Kali on a lab VLAN:
+1. Generate some traffic so there's data. In pfSense, enable the **Lab exercises:
+   Lab → Servers** rule (`Firewall -> Rules -> VLAN40`), then from Kali on VLAN 40:
 ```shell
-nmap -A 10.27.0.1
+nmap -A <VLAN 30 host>
 curl http://8.8.8.8
 ```
    (The nmap triggers a Suricata `ET SCAN` alert; the curl hits the Zeek intel
-   feed you configured for `8.8.8.8`.)
+   feed you configured for `8.8.8.8`.) Scan a host on VLAN 30, not pfSense:
+   traffic that ends at the firewall never crosses the mirrored trunk, so no alert
+   fires. Disable the Lab exercises rule again afterwards.
 
 2. In Kibana, open **Discover** and filter to confirm data is arriving:
    - `event.module: "suricata"`

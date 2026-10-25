@@ -1,4 +1,4 @@
-# 🛡️ 03 - Intrusion Detection System
+# 🛡️ 04 - Intrusion Detection System
 
 ## Objective
 
@@ -464,3 +464,6 @@ future hardening.
   accepting the duplicate-packet trade-off.
 - Monitor `capture_loss.log` (Zeek) and Suricata's `stats.log` for packet drops
   as traffic grows.
+
+## ➡️ Next Up
+[**05 - Kubernetes Lab Node:** Proxmox, Terraform, and Talos Linux as code](<05 - Kubernetes Lab Node.md>)

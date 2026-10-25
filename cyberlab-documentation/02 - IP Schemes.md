@@ -41,7 +41,7 @@ Every VLAN follows the same layout for the last octet, so any address tells you 
 | Raspberry Pi (management NIC) | 10 | 10.27.10.7 | IDS sensor management and log shipping |
 
 > [!NOTE]
-> The Raspberry Pi has two network interfaces. Only the USB management NIC has an IP. The built-in `eth0` is the capture interface on the mirror port and intentionally has **no IP address**. See [03 - Intrusion Detection System](<03 - Intrusion Detection System.md>).
+> The Raspberry Pi has two network interfaces. Only the USB management NIC has an IP. The built-in `eth0` is the capture interface on the mirror port and intentionally has **no IP address**. See [04 - Intrusion Detection System](<04 - Intrusion Detection System.md>).
 
 ## Planned Static IPs
 
@@ -84,4 +84,4 @@ Every VLAN follows the same layout for the last octet, so any address tells you 
 4. A single wrong octet can break things silently: Filebeat was pointed at `10.27.0.5` instead of `10.27.10.5` and failed without an obvious error. Check addresses against this table when configuring services
 
 ## ➡️ Next Up
-[**03 - Intrusion Detection System:** Deploy Suricata and Zeek on mirrored traffic](<03 - Intrusion Detection System.md>)
+[**04 - Intrusion Detection System:** Deploy Suricata and Zeek on mirrored traffic](<04 - Intrusion Detection System.md>)

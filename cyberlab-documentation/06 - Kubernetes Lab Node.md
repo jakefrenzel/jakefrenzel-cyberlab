@@ -1,10 +1,10 @@
 # ☸️ 06 - Kubernetes Lab Node
 
 > [!NOTE]
-> In progress. The three-node Talos cluster is built and managed by Terraform. CI with GitHub Actions and the first workloads are next.
+> In progress. The three-node Talos cluster runs Cilium, deploys from git with Argo CD, is monitored by Prometheus and Grafana, keeps data on persistent volumes, runs a default-deny host firewall and Falco runtime threat detection on every node, and sends alerts to Discord.
 
 ## Objective
-Stand up a second Proxmox node (`pve1`) and manage it as code: Terraform creates the VMs, Talos Linux runs Kubernetes on them, and GitHub Actions will validate changes. Everything should be reproducible from a git repository rather than clicked together in a web GUI.
+Stand up a second Proxmox node (`pve1`) and manage it as code: Terraform creates the VMs, Talos Linux runs Kubernetes on them, Argo CD deploys workloads from git, and GitHub Actions validates every change. Everything should be reproducible from a git repository rather than clicked together in a web GUI.
 
 ## Hardware
 | Device | Purpose |
@@ -18,7 +18,13 @@ Stand up a second Proxmox node (`pve1`) and manage it as code: Terraform creates
 | Proxmox VE 9.2 | Hypervisor |
 | Terraform | Creates and tracks VMs through the Proxmox API (`bpg/proxmox` provider) |
 | Talos Linux | Minimal, API-only Kubernetes OS: no SSH, no shell, configured entirely by machine config (`siderolabs/talos` provider) |
-| GitHub Actions | CI for the infrastructure repo (planned) |
+| Cilium | eBPF pod networking: replaces flannel and kube-proxy, enforces NetworkPolicy, Hubble flow visibility, and a host firewall on every node |
+| Argo CD | GitOps: deploys everything under `k8s/` in the repo and keeps the cluster matching `main` |
+| Prometheus + Grafana | Metrics and dashboards for nodes, Kubernetes, the control plane, and Cilium/Hubble network flows, with a custom overview as the home page |
+| Alertmanager | Routes warning and critical alerts to a private Discord channel |
+| Falco + Falcosidekick | Runtime threat detection (an eBPF-based host IDS) on every node; Falcosidekick forwards its events to Alertmanager and a web UI |
+| Local Path Provisioner | Persistent volumes carved out of each worker's data disk |
+| GitHub Actions | CI on every push: `terraform fmt`/`validate`, `tflint`, ShellCheck, gitleaks |
 | Tailscale | The only way into the node and the cluster network |
 
 Talos was chosen over k3s because it is configured purely through declarative machine config, which fits a Terraform workflow without needing SSH or configuration scripts.
@@ -40,13 +46,13 @@ The Terraform code lives in a separate repository, `cyberlab-infra`, so this rep
 | VM | VM ID | Role | vCPU | RAM | Disk | IP |
 |----|-------|------|------|-----|------|----|
 | talos-cp-01 | 4011 | Control plane | 2 | 4 GB | 40 GB | 10.127.40.11 |
-| talos-wk-01 | 4021 | Worker | 2 | 6 GB | 40 GB | 10.127.40.21 |
-| talos-wk-02 | 4022 | Worker | 2 | 6 GB | 40 GB | 10.127.40.22 |
+| talos-wk-01 | 4021 | Worker | 2 | 6 GB | 40 GB + 20 GB data | 10.127.40.21 |
+| talos-wk-02 | 4022 | Worker | 2 | 6 GB | 40 GB + 20 GB data | 10.127.40.22 |
 
-- **Versions:** Talos v1.14.4, Kubernetes v1.37.0, containerd 2.3.7, flannel CNI
+- **Versions:** Talos v1.14.4, Kubernetes v1.37.0, containerd 2.3.7, Cilium 1.20.4, Argo CD v3.5.6, kube-prometheus-stack 92.13.1, Local Path Provisioner v0.0.37, Falco 0.45.1 (chart 9.2.1), Falcosidekick 2.32.0
 - **VM IDs:** `40` (Lab VLAN) followed by the host octet, so the ID tells you the IP
 - **Room to grow:** `.12` – `.13` for a three-node control plane, `.23` – `.29` for more workers
-- **Budget on `pve1`:** 6 / 6 vCPU allocated (shared, idle most of the time), 16 / 31 GiB RAM, 120 / 373 GB thin-provisioned disk. RAM is the real limit; about 15 GiB is left for other lab VMs
+- **Budget on `pve1`:** 6 / 6 vCPU allocated (shared, idle most of the time), 16 / 31 GiB RAM, 160 / 373 GB thin-provisioned disk. RAM is the real limit; about 15 GiB is left for other lab VMs
 
 ```
                  ┌──────────────────────────────┐
@@ -235,6 +241,199 @@ talos-wk-02   Ready    <none>          v1.37.0   10.127.40.22
 - `talosctl health`: all 16 checks passed, including a single etcd member on the control plane
 - A test `nginx` pod was scheduled on `talos-wk-02`, not the control plane, so the `NoSchedule` taint works. It got an IP from the pod CIDR (`10.244.0.0/16`)
 
+### CI with GitHub Actions
+`cyberlab-infra` is public, so CI only does static checks. GitHub's runners can't reach the lab, and no Proxmox token or Tailscale key is ever given to a public repository's workflows.
+
+| Job | Checks |
+|-----|--------|
+| Terraform | `fmt -check`, `init -backend=false`, `validate`, `tflint` (recommended preset) |
+| ShellCheck | Every `*.sh` in the repo |
+| Secret scan | gitleaks over the full git history |
+
+1. Pinned every action to a commit SHA instead of a tag, so a moved tag can't change what runs. The workflow token is read-only
+2. Ran every check locally before the first push so the first CI run would be green
+3. Tested gitleaks against the whole working tree, including gitignored files: it flagged 149 secrets (private keys and API-key-like values) in the state and credential files, proving `.gitignore` is what keeps them out of git
+4. Found that gitleaks' default rules **don't recognize Proxmox API tokens**, and added a custom rule (`user@realm!tokenid=<uuid>`) with an allowlist for the all-zero placeholder in the example file
+5. Before going public, audited exactly what would be committed: no state, tfvars, or credentials, and no real IPs, hostnames, or usernames in any file
+
+### State backups
+Terraform state holds the cluster's root CA, so it is backed up **encrypted**:
+
+1. Encrypted with [age](https://github.com/FiloSottile/age) to a public key, so taking a backup needs no passphrase; only the private key can decrypt
+2. Each backup bundles the state, `terraform.tfvars`, `talosconfig`, and `kubeconfig`, written to a cloud-synced folder; the newest 10 are kept
+3. The private key is stored in a password manager, so losing the laptop doesn't lose the backups
+4. Tested a full restore: every file came back byte-identical and Terraform read all resources from the restored state
+
+### Cilium
+Flannel, the Talos default, **doesn't enforce NetworkPolicy**, so pods can't be firewalled from each other. The cluster was rebuilt on Cilium while it was still empty.
+
+| Talos 1.14 patch | Effect |
+|------------------|--------|
+| Delete the `KubeFlannelCNIConfig` document | No default CNI |
+| `KubeProxyConfig` with `enabled: false` | No kube-proxy; Cilium's eBPF replacement handles Services |
+| `KubeInlineManifestConfig` named `cilium` | Talos applies Cilium during bootstrap |
+
+1. Rendered the Cilium chart inside Terraform with the Helm provider's `helm_template` data source, which never connects to the cluster, using the Talos guide's settings: Kubernetes IPAM, kube-proxy replacement through KubePrism (`localhost:7445`), `SYS_MODULE` dropped from the capabilities (Talos forbids kernel module loading), and cgroup/bpffs auto-mounting off
+2. Set Hubble's TLS certificates to be generated in-cluster. The default generates new random certificates on every render, which would change the machine config on every plan
+3. Planned twice and compared the rendered configs to prove the output is deterministic, then validated it with `talosctl validate`
+4. Destroyed only the VMs (`terraform destroy -target`), keeping the Talos image and the cluster secrets, so the rebuilt cluster kept the same CA and the existing `talosconfig` kept working
+5. Verified: `cilium-dbg status` healthy on all nodes, `KubeProxyReplacement: True`, no `kube-proxy` DaemonSet, and Hubble recording flows
+6. Tested enforcement: a client pod could fetch a page from an nginx pod, then timed out after a default-deny ingress NetworkPolicy was applied
+
+### Argo CD (GitOps)
+Argo CD is installed by Talos at bootstrap the same way as Cilium, following the Talos "Deploy Argo CD" guide. From then on it owns everything under `k8s/` in the repository.
+
+```
+Terraform ──► Talos inline manifests ──► Cilium + Argo CD
+                                              │
+                                              ▼
+                     root Application ──► k8s/apps/*.yaml ──► each app
+```
+
+1. Rendered the `argo-cd` chart with `helm_template` (Dex and notifications disabled) and bundled it with the `argocd` namespace and a `root` Application
+2. The `root` Application is an **app of apps**: it syncs `k8s/apps` from `main`, where every file is another Application. Sync is automated with `prune` and `selfHeal`, so manual changes are reverted and deleting a file removes its app
+3. Gave `root` no finalizer, so deleting it can never cascade into the apps it created; child apps do have one, so removing an app's file cleans up its resources
+4. Relied on Talos' documented manifest ordering (Namespaces, then CRDs, then everything else) so the `root` Application is created after its CRD
+5. The admin password is generated in-cluster and was changed after the first login; it never appears in git or Terraform state
+6. Verified: `root` reached `Synced` / `Healthy` at the same commit CI had just checked
+
+### Monitoring
+kube-prometheus-stack is the first workload deployed purely through Argo CD.
+
+| File in `k8s/` | Purpose |
+|----------------|---------|
+| `apps/monitoring-config.yaml` | Syncs `k8s/monitoring/` first (sync wave `-1`) |
+| `apps/kube-prometheus-stack.yaml` | The Helm chart, with server-side apply (its CRDs are too large for client-side apply) |
+| `monitoring/namespace.yaml` | `monitoring` namespace with Pod Security `privileged`, because node-exporter needs host access |
+| `monitoring/cilium-monitors.yaml` | Scrape configs for Cilium and Hubble |
+
+1. Disabled scraping for the scheduler, controller manager, and etcd (Talos binds their metrics to localhost) and for kube-proxy (not running), so no targets sit permanently down. The first three were turned back on later (see [Control-plane metrics](#control-plane-metrics))
+2. Pointed Grafana's admin login at a hand-made Secret. The chart default (`prom-operator`) is publicly known, and a chart-generated random password would change on every Argo CD render. Restarting Grafana after updating the Secret proved the password survives restarts
+3. Turned on Cilium agent, operator, and Hubble metrics and Cilium's bundled dashboards in `cilium.tf`. The chart only creates Services for Hubble and Envoy, so the agent and operator are scraped with PodMonitors
+4. Copied the `k8s_app` and `io_cilium_app` pod labels onto the scraped series, because Cilium's dashboards filter on them (113 and 6 queries respectively)
+5. Verified: 32 of 32 targets up, Hubble processing about 34 flows per second, 6 Cilium/Hubble dashboards loaded, and only the always-on `Watchdog` alert firing
+
+> [!IMPORTANT]
+> Talos treats inline manifests as **create-only**: after an object exists, Talos never updates or deletes it. Changing Cilium's settings created the new objects but left the running Cilium pods untouched. Updating them takes `talosctl upgrade-k8s --to <current version>`, which syncs manifests (server-side apply, with pruning) without upgrading Kubernetes. Check the diff with `--dry-run` first.
+
+### Persistent storage
+Without persistent volumes, Prometheus lost its history and Grafana its database on every restart. The volumes live on a second disk on each worker, kept apart from the Talos system disk.
+
+| Layer | What it does |
+|-------|--------------|
+| `nodes.tf` | Adds a 20 GB data disk to each worker (`data_disk` in the node map; `0` for the control plane, which runs no workloads) |
+| `storage.tf` | Talos `UserVolumeConfig` named `local-path-provisioner`: formats the data disk (XFS) and mounts it at `/var/mnt/local-path-provisioner` |
+| `k8s/storage/local-path/` | Local Path Provisioner v0.0.37 (Argo CD, sync wave `-2`), pointed at that mount and set as the default StorageClass |
+
+1. Selected the data disk with `!system_disk && disk.transport == 'virtio'`, so neither the system disk nor the cloud-init CD-ROM (SATA) could ever be picked
+2. Patched Local Path Provisioner per the Talos "Local Storage" guide: its default `/opt` path is read-only on Talos. Also pinned its helper pod's `busybox` image (upstream uses an untagged one) and labelled its namespace Pod Security `privileged`, since the helper pods mount host paths
+3. Gave the monitoring stack volumes: Prometheus 10 Gi (15 days of retention, capped at 8 GiB so it can never fill the volume), Alertmanager 1 Gi, Grafana 2 Gi
+4. Verified: `talosctl get volumestatus` shows the volume `ready` on both workers, every claim is `Bound`, and Prometheus kept its history through two pod restarts and a control-plane reboot
+
+> [!NOTE]
+> A local volume exists on one node only, so the pod using it is pinned there: Prometheus and Alertmanager always run on `talos-wk-01`, Grafana on `talos-wk-02`. If a worker dies, its volumes go with it. That's an acceptable trade-off for monitoring data in a lab, but not for anything that can't be rebuilt.
+
+### Control-plane metrics
+Talos binds the scheduler, controller manager, and etcd metrics to localhost, so Prometheus couldn't scrape them.
+
+| Talos 1.14 patch (`metrics.tf`, control plane only) | Effect |
+|-----------------------------------------------------|--------|
+| `KubeSchedulerConfig` `extraArgs.bind-address: 0.0.0.0` | Scheduler metrics on `:10259` (HTTPS, token required) |
+| `KubeControllerManagerConfig` `extraArgs.bind-address: 0.0.0.0` | Controller-manager metrics on `:10257` (HTTPS, token required) |
+| `cluster.etcd.extraArgs.listen-metrics-urls: http://0.0.0.0:2381` | etcd metrics on `:2381` (plain HTTP, metrics only) |
+
+1. Generated a sample config and validated the patch locally. etcd has no typed document yet in Talos 1.14, so its setting still goes in the legacy `v1alpha1` document
+2. Applied it with Terraform. The scheduler and controller manager restarted on their own within a minute, but etcd only reads its flags at startup, and Talos refuses to restart etcd through its API, so the control plane needed a reboot (about two minutes without the Kubernetes API; workloads on the workers kept running)
+3. Re-enabled the three exporters in kube-prometheus-stack. The Talos static pods carry the same `component` labels as kubeadm's, so the chart defaults found the scheduler and controller manager as-is
+4. etcd runs as a Talos system service, not a pod, so there is nothing for a Service to select. Instead, its Service selects the **kube-apiserver** pod: it uses host networking, so its address is the node's IP, and Prometheus scrapes `:2381` there. This needs no IP addresses in the public repository and follows the control plane if more nodes are added
+5. Stopped Prometheus from sending its service-account token to etcd's plain-HTTP endpoint, which needs no authentication
+6. Verified: 35 of 35 targets up (was 32), data in the etcd, scheduler, and controller-manager dashboards, and no new alerts
+
+> [!WARNING]
+> This made the three ports reachable from every pod and over the Tailscale route, and etcd's `:2381` has no authentication. The host firewall below closes that.
+
+### Host firewall
+Cilium can also filter traffic **to the nodes themselves**, with the same identity-based policies it uses for pods. Every node now drops incoming traffic that isn't explicitly allowed:
+
+| From | Allowed |
+|------|---------|
+| Other nodes, the API server, Cilium health checks | Everything (VXLAN, kubelet, Talos API proxying, health checks) |
+| Outside the cluster (the admin laptop) | Kubernetes API `6443`, Talos API `50000`, ping |
+| Any pod | API server `6443`, Talos host DNS `53` (CoreDNS forwards to it) |
+| Prometheus pod only | kubelet, node-exporter, and Cilium/Hubble metrics on every node; etcd `2381`, controller manager `10257`, and scheduler `10259` on the control plane |
+| Hubble Relay pod only | Hubble `4244` |
+
+Rules name pods by their labels, not their addresses, so "Prometheus only" holds wherever Prometheus is scheduled, and the policy files contain no IP addresses. Outgoing traffic from the nodes isn't filtered.
+
+1. Enabled the feature in `cilium.tf` (`hostFirewall.enabled`), synced it with `talosctl upgrade-k8s`, and restarted the Cilium pods, which the chart doesn't do on its own when a setting changes. With no policy selecting a node, nothing was filtered yet
+2. Before writing rules, checked which address the traffic actually comes from with Hubble:
+   - The laptop's traffic arrives from `pve1`'s bridge address (`10.127.40.1`), because the Tailscale subnet router rewrites the source. Cilium sees it as `world`, which is why only the two APIs are open to `world`
+   - Prometheus' scrapes of another node keep the Prometheus pod's own identity (they aren't rewritten to the node's address), so a "Prometheus only" rule can work
+3. Wrote two `CiliumClusterwideNetworkPolicy` objects (`k8s/security/host-firewall.yaml`, deployed by Argo CD). They apply only to nodes labelled `cyberlab.io/host-firewall=enabled`, so pushing them changed nothing
+4. Rolled out one node at a time: `talos-wk-02`, `talos-wk-01`, then the control plane. For each node:
+   1. Put the node's host endpoint into **audit mode** (would-be drops are logged, nothing is dropped) and added the label
+   2. Watched the policy verdicts (`cilium-dbg monitor -t policy-verdict`) while generating normal traffic: `kubectl logs`, `talosctl`, ping, Hubble, and a restart of Prometheus and Hubble Relay to force fresh connections
+   3. Ran a negative test: a plain `busybox` pod connecting to node-exporter and the kubelet (and etcd on the control plane) had to show up as `audit`
+   4. Switched audit mode off and repeated the checks
+5. Moved the label into the Talos config (`KubeNodeConfig` labels in `talos.tf`), so a rebuilt node comes up firewalled
+6. Verified: a plain pod's connections to etcd `:2381`, the scheduler, node-exporter, and the kubelet are dropped (`Policy denied`); `kubectl`, `talosctl`, Hubble Relay, and Cilium health all still work; Prometheus is 35 of 35
+
+> [!IMPORTANT]
+> Audit mode is the emergency off switch: it takes effect immediately on one node. Removing the node's label or deleting the policy by hand doesn't stick, because Talos restores the label within seconds and Argo CD recreates the policy. Audit mode is lost if that node's Cilium agent restarts, so the real fix always goes through git.
+
+### Runtime security (Falco)
+The host firewall and Pod Security Admission **prevent**: they block traffic and pod settings before anything happens. Falco **detects**: an eBPF program in each node's kernel sees every syscall (about a million every five minutes per node), and Falco matches them against rules for suspicious behaviour, such as a shell spawned in a container, a read of `/etc/shadow`, logs being cleared, or writes below system directories. Each match becomes an event naming the process, pod, and namespace. It's a host-based IDS that understands containers, the counterpart to the Suricata and Zeek network IDS in [05 - Intrusion Detection System](<05 - Intrusion Detection System.md>): that one sees packets on the wire, this one sees what processes do on the nodes.
+
+| Event goes to | What |
+|---------------|------|
+| Falco's log (JSON) | Every event |
+| Falcosidekick UI | Every event, kept 7 days in Redis (1 Gi volume) |
+| Alertmanager | Warning and above (held back from Discord until the rules are tuned) |
+| Prometheus + Grafana | Event counts per rule, plus Falco's own CPU, memory, and dropped events |
+
+1. Checked the kernel before picking a driver. Talos only loads signed kernel modules (`module.sig_enforce=1`), so Falco's kernel module was out. The kernel (6.18) exposes BTF type information and has kernel lockdown off, which is what Falco's **modern eBPF** probe needs: it's built into Falco, with no driver to download or compile
+2. Ran it with four capabilities (`BPF`, `PERFMON`, `SYS_RESOURCE`, `SYS_PTRACE`) instead of as a privileged container. The `falco` namespace still needs Pod Security `privileged` for the host mounts; Argo CD creates the namespace with those labels (`managedNamespaceMetadata`), so it needs no manifest of its own
+3. Read what the chart would mount before deploying. It mounts the directory of every container-engine socket it knows about (Docker, Podman, CRI-O, ...) as a hostPath with no type check, so the kubelet would have created empty directories for all of them on every node. Narrowed it to containerd's CRI socket, the only one Talos has; Falco reads pod names and namespaces from it
+4. Rendered the chart locally with `helm template` and checked the output: the capabilities, the mounts, and Falcosidekick posting to Alertmanager's v2 API (v1 is gone in current Alertmanager)
+5. Gave the Falcosidekick UI a login from a hand-made Secret; the chart default is `admin:admin`. Verified the default is rejected
+6. Turned on Falco and Falcosidekick metrics and their Grafana dashboards. Both charts name their dashboard file `falco-dashboard.json`, so Grafana's sidecar kept overwriting one with the other; a folder each fixed it
+7. Verified: read `/etc/shadow` from a throwaway pod, and a `Read sensitive file untrusted` event with the pod's name showed up in the UI and in Alertmanager within seconds. Falco uses 50–65 MiB and about 1% of a core per node with zero dropped syscalls, and Prometheus is 39 of 39 targets up
+
+> [!NOTE]
+> The first false positive came from the platform itself. When a pod restarted, containerd unpacked an image layer containing `/var/log/dpkg.log` onto the node, which looks like log tampering to the `Clear Log Activities` rule. It and anything else noisy get tuned after a few days of baseline, so the rules are tuned against real data and not guesses. Until then, Falco events don't go to Discord.
+
+### Overview dashboard
+The charts installed 36 Grafana dashboards, but Grafana opened on an empty Home page, and nothing showed the lab as a whole. **Cyberlab Overview** is now the home page:
+
+| Section | Shows |
+|---------|-------|
+| Cluster | Nodes not ready, alerts firing, scrape targets down, pods not running, restarts, nearly full volumes; node CPU, memory, and disk |
+| Network | Policy drops (host firewall and NetworkPolicy), drops by reason, Hubble flows by verdict, DNS responses |
+| Security | Falco events (24 h) and a table by rule; Falco nodes reporting, dropped syscalls, Falcosidekick delivery errors |
+
+Every count at the top of a section is **zero when healthy**, so a problem shows up as colour. Panel links open the detailed dashboard behind each number.
+
+1. Kept the dashboard in git as plain JSON (`k8s/monitoring/dashboards/`). Kustomize turns it into a ConfigMap that Grafana's sidecar loads, and Grafana's `default_home_dashboard_path` points at it. It's read-only in the UI; changes go through git like everything else
+2. Fixed a counting problem on the way. Falco's event counters only exist once a rule fires, and Prometheus' `increase()` needs an earlier sample to compare against, so every rule's first event on a node counted as zero. The stock Falco dashboard showed nothing for the real events. The overview subtracts the value 24 hours ago instead, falling back to the whole counter for newer series, so every event counts
+3. Verified: ran all 20 panel queries against live data before pushing; the 24-hour Falco count showed the 4 real events the stock dashboard showed as 0
+
+### Alerting to Discord
+Until now Alertmanager sent every alert to a `null` receiver, so alerts only existed if someone opened its UI. They now go to a private Discord channel, visible only to a `Blue Team` role:
+
+| Alert | Goes to |
+|-------|---------|
+| Warning and critical | Discord: grouped by namespace, reminded every 12 hours while firing, and a message when resolved |
+| `Watchdog` | Muted: it fires all the time by design, to prove the alert pipeline works |
+| `InfoInhibitor`, `severity=info` | Muted: informational, for dashboards |
+| Falco (`source=falco`) | Muted until the rules are tuned |
+
+1. Kept the webhook URL out of git. Anyone with it can post to the channel, so it lives in a hand-made Secret that Alertmanager mounts as a file (`webhook_url_file`), and it never appears in the repository or the rendered config
+2. Validated the new config inside the running Alertmanager pod before pushing: `amtool check-config`, and `amtool config routes test` with sample alerts for each row of the table
+3. Verified: a test alert (`amtool alert add`) arrived in Discord about 30 seconds later, followed by a resolved message
+
+> [!IMPORTANT]
+> Alertmanager mounts that Secret as a volume, so if it's missing the pod can't start, and alerting goes down with it. After a rebuild, create the Secret before the first sync.
+
 ## Choosing the Cluster Subnet
 The subnet must not overlap any network the admin laptop or the cluster already uses:
 
@@ -263,8 +462,32 @@ The first subnet picked was `10.99.40.0/24`. It looked free, but `10.96.0.0/12` 
 11. `moved` blocks make refactoring safe: always check the plan says `0 to destroy` before applying a rename
 12. Talos enables Pod Security Admission by default: pods that break the "baseline" level are blocked, and anything below "restricted" gets a warning. A bare `kubectl run nginx` triggers the warning, a useful reminder to write workloads that pass "restricted"
 13. Windows PowerShell 5.1's `>` writes UTF-16, which `talosctl` can't read. Exporting Terraform outputs with `Set-Content -Encoding ascii` avoids it
+14. Secret scanners only know the formats in their rules. Testing gitleaks against real (gitignored) secrets showed it missed the Proxmox token entirely until a custom rule was added
+15. Swap the CNI while the cluster is empty. With everything in Terraform, a rebuild took about a minute of apply time plus a few minutes to go healthy
+16. Anything rendered into machine config must be deterministic. Charts that generate random certificates or passwords at render time cause a change on every plan, so those values are generated in-cluster instead
+17. `terraform console` shows values from state, not freshly read data sources, so it showed the old config after a change. Inspecting the plan's JSON (`terraform show -json`) shows what will actually be applied
+18. Cilium's kube-proxy replacement answers "no route to host" for a Service with no ready endpoints. Argo CD's first sync hit this for a few seconds while its repo server was still starting
+19. Talos inline manifests are create-only. Configuration changes to components it installs need `talosctl upgrade-k8s` at the same version to reach the cluster
+20. With no persistent storage, Grafana's database resets on every restart, so a password changed in the UI reverts to the Secret's value. Keeping the Secret in step with the real password makes it survive restarts
+21. Applying a Talos config change doesn't mean every component picked it up. The scheduler and controller manager restarted themselves, but etcd needed a reboot. Checking the listening ports (`talosctl netstat -l`) showed which ones hadn't changed
+22. Not everything is a pod. etcd on Talos is a host service, so the usual "Service selects pods" pattern needed a stand-in: a host-network pod on the same node
+23. A firewall rule is only as good as your picture of the traffic. Hubble showed the laptop arriving as `pve1`'s address and Prometheus keeping its pod identity across nodes, which decided how the rules were written
+24. Cilium logs a policy verdict only when a connection opens. Long-lived connections made before a rule existed never show up, so the audit included restarting Prometheus and Hubble Relay to watch their fresh connections
+25. A negative test proves a firewall works. Seeing a plain pod blocked from etcd shows the rules do something, not just that nothing broke
+26. Rolling out node by node, starting with a worker, kept every mistake small and left the control plane for last, after the rules had been proven twice
+27. An escape hatch has to be tested too. Removing the node label looked like the obvious way out, but Talos put it back within five seconds once it owned the label
+28. Changing a Cilium Helm value updates its ConfigMap but not the running agents; they read it at startup. Restarting the DaemonSet applies it
+29. Check the kernel before picking a security tool's driver. Talos's signed-modules-only policy ruled out Falco's kernel module, but BTF and no lockdown made the eBPF probe work with four capabilities instead of full privilege
+30. Read what a chart mounts, not just what it runs. Falco's defaults would have created empty directories on every node for container engines Talos doesn't have
+31. Two charts can collide where you don't expect it. Falco's and Falcosidekick's dashboards had the same filename, and the Grafana sidecar's logs (writing the same file every minute) were the giveaway
+32. Prometheus' `increase()` can't see a counter's first value. Event counters that only appear when something happens need a different query, or the first event of each kind never shows up
+33. Baseline before tuning. The first false positive was the platform's own image unpacking, which no amount of guessing up front would have predicted
+34. A `kubectl port-forward` is tied to one pod. Restarting the pod ends it, and the browser just reports a network error
+35. In an app-of-apps setup, a child Application's spec is synced by `root`. Refreshing the child alone keeps using its old spec
+36. Mounting a credential as a file (`webhook_url_file`) keeps it out of git and out of the rendered config, but it also makes the Secret a hard dependency for the pod to start
+37. Validate config where it will run. `amtool` inside the running Alertmanager pod checked the syntax and every route before the change was pushed
 
 ## ➡️ Next Up
-- Add GitHub Actions (`terraform fmt` / `validate`) to `cyberlab-infra`
-- Back up Terraform state, then move it to a remote backend
-- Deploy the first workloads
+- Tune Falco against a few days of baseline, then send its alerts to Discord
+- Move Terraform state to a remote backend (encrypted, with locking)
+- Deploy an app of my own end to end: build in GitHub Actions, publish to GHCR, deploy with Argo CD

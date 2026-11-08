@@ -1,7 +1,7 @@
 # ☸️ 06 - Kubernetes Lab Node
 
 > [!NOTE]
-> In progress. The three-node Talos cluster runs Cilium, deploys from git with Argo CD, is monitored by Prometheus and Grafana, keeps data on persistent volumes, runs a default-deny host firewall and Falco runtime threat detection on every node, and sends alerts to Discord.
+> In progress. The three-node Talos cluster runs Cilium, deploys from git with Argo CD, is monitored by Prometheus and Grafana, keeps data on persistent volumes, runs a default-deny host firewall and tuned Falco runtime threat detection on every node, and sends alerts to Discord. It runs two of my own apps, a status page and a GitHub mirror, each shipped through a signed release pipeline, and Kyverno only admits images signed by the right workflow.
 
 ## Objective
 Stand up a second Proxmox node (`pve1`) and manage it as code: Terraform creates the VMs, Talos Linux runs Kubernetes on them, Argo CD deploys workloads from git, and GitHub Actions validates every change. Everything should be reproducible from a git repository rather than clicked together in a web GUI.
@@ -23,7 +23,10 @@ Stand up a second Proxmox node (`pve1`) and manage it as code: Terraform creates
 | Prometheus + Grafana | Metrics and dashboards for nodes, Kubernetes, the control plane, and Cilium/Hubble network flows, with a custom overview as the home page |
 | Alertmanager | Routes warning and critical alerts to a private Discord channel |
 | Falco + Falcosidekick | Runtime threat detection (an eBPF-based host IDS) on every node; Falcosidekick forwards its events to Alertmanager and a web UI |
+| Kyverno | Admission control: in my apps' namespaces, only images signed by the expected release workflow may run |
+| CloudNativePG | PostgreSQL operator; runs the database behind the GitHub mirror's sign-in |
 | Local Path Provisioner | Persistent volumes carved out of each worker's data disk |
+| My own apps | [cyberlab-status](https://github.com/jakefrenzel/cyberlab-status) (Go status page) and [cyberlab-mirror](https://github.com/jakefrenzel/cyberlab-mirror) (Go + Next.js GitHub mirror): built, scanned, and signed in their own repositories |
 | GitHub Actions | CI on every push: `terraform fmt`/`validate`, `tflint`, ShellCheck, gitleaks |
 | Tailscale | The only way into the node and the cluster network |
 
@@ -49,7 +52,7 @@ The Terraform code lives in a separate repository, `cyberlab-infra`, so this rep
 | talos-wk-01 | 4021 | Worker | 2 | 6 GB | 40 GB + 20 GB data | 10.127.40.21 |
 | talos-wk-02 | 4022 | Worker | 2 | 6 GB | 40 GB + 20 GB data | 10.127.40.22 |
 
-- **Versions:** Talos v1.14.4, Kubernetes v1.37.0, containerd 2.3.7, Cilium 1.20.4, Argo CD v3.5.6, kube-prometheus-stack 92.13.1, Local Path Provisioner v0.0.37, Falco 0.45.1 (chart 9.2.1), Falcosidekick 2.32.0
+- **Versions:** Talos v1.14.4, Kubernetes v1.37.0, containerd 2.3.7, Cilium 1.20.4, Argo CD v3.5.6, kube-prometheus-stack 92.13.1, Local Path Provisioner v0.0.37, Falco 0.45.1 (chart 9.2.1), Falcosidekick 2.32.0, Kyverno v1.19.2 (chart 3.9.2), CloudNativePG 1.30.1 (chart 0.29.1) with PostgreSQL 18.6
 - **VM IDs:** `40` (Lab VLAN) followed by the host octet, so the ID tells you the IP
 - **Room to grow:** `.12` – `.13` for a three-node control plane, `.23` – `.29` for more workers
 - **Budget on `pve1`:** 6 / 6 vCPU allocated (shared, idle most of the time), 16 / 31 GiB RAM, 160 / 373 GB thin-provisioned disk. RAM is the real limit; about 15 GiB is left for other lab VMs
@@ -388,7 +391,7 @@ The host firewall and Pod Security Admission **prevent**: they block traffic and
 |---------------|------|
 | Falco's log (JSON) | Every event |
 | Falcosidekick UI | Every event, kept 7 days in Redis (1 Gi volume) |
-| Alertmanager | Warning and above (held back from Discord until the rules are tuned) |
+| Alertmanager | Warning and above, on to Discord since the rules were tuned (see [Tuning Falco](#tuning-falco)) |
 | Prometheus + Grafana | Event counts per rule, plus Falco's own CPU, memory, and dropped events |
 
 1. Checked the kernel before picking a driver. Talos only loads signed kernel modules (`module.sig_enforce=1`), so Falco's kernel module was out. The kernel (6.18) exposes BTF type information and has kernel lockdown off, which is what Falco's **modern eBPF** probe needs: it's built into Falco, with no driver to download or compile
@@ -400,7 +403,7 @@ The host firewall and Pod Security Admission **prevent**: they block traffic and
 7. Verified: read `/etc/shadow` from a throwaway pod, and a `Read sensitive file untrusted` event with the pod's name showed up in the UI and in Alertmanager within seconds. Falco uses 50–65 MiB and about 1% of a core per node with zero dropped syscalls, and Prometheus is 39 of 39 targets up
 
 > [!NOTE]
-> The first false positive came from the platform itself. When a pod restarted, containerd unpacked an image layer containing `/var/log/dpkg.log` onto the node, which looks like log tampering to the `Clear Log Activities` rule. It and anything else noisy get tuned after a few days of baseline, so the rules are tuned against real data and not guesses. Until then, Falco events don't go to Discord.
+> The first false positive came from the platform itself. When a pod restarted, containerd unpacked an image layer containing `/var/log/dpkg.log` onto the node, which looks like log tampering to the `Clear Log Activities` rule. It and anything else noisy were tuned after two weeks of baseline, so the rules were tuned against real data and not guesses (see [Tuning Falco](#tuning-falco)).
 
 ### Overview dashboard
 The charts installed 36 Grafana dashboards, but Grafana opened on an empty Home page, and nothing showed the lab as a whole. **Cyberlab Overview** is now the home page:
@@ -425,7 +428,7 @@ Until now Alertmanager sent every alert to a `null` receiver, so alerts only exi
 | Warning and critical | Discord: grouped by namespace, reminded every 12 hours while firing, and a message when resolved |
 | `Watchdog` | Muted: it fires all the time by design, to prove the alert pipeline works |
 | `InfoInhibitor`, `severity=info` | Muted: informational, for dashboards |
-| Falco (`source=falco`) | Muted until the rules are tuned |
+| Falco (`source=falco`) | Muted at first; since [tuning](#tuning-falco), Discord in a compact format of its own |
 
 1. Kept the webhook URL out of git. Anyone with it can post to the channel, so it lives in a hand-made Secret that Alertmanager mounts as a file (`webhook_url_file`), and it never appears in the repository or the rendered config
 2. Validated the new config inside the running Alertmanager pod before pushing: `amtool check-config`, and `amtool config routes test` with sample alerts for each row of the table
@@ -433,6 +436,109 @@ Until now Alertmanager sent every alert to a `null` receiver, so alerts only exi
 
 > [!IMPORTANT]
 > Alertmanager mounts that Secret as a volume, so if it's missing the pod can't start, and alerting goes down with it. After a rebuild, create the Secret before the first sync.
+
+### Alert rules for Argo CD and Cilium
+kube-prometheus-stack ships about 150 alert rules for nodes, Kubernetes, etcd, and itself, but none for Argo CD or Cilium. Both can fail quietly: an app stuck out of sync looks fine until someone opens Argo CD, and a broken policy just drops traffic. A `PrometheusRule` (`k8s/monitoring/cyberlab-alerts.yaml`) adds them:
+
+| Group | Fires when |
+|-------|------------|
+| Argo CD | An app is out of sync or unhealthy for 15 minutes, or a sync ends in `Error` / `Failed` |
+| Cilium health | Nodes can't reach each other (critical), pod-network health checks fail, Hubble keeps losing flow events |
+| Cilium internals | A policy fails to import, endpoint regeneration or background controllers keep failing, a BPF map is over 90% full |
+| Cilium security | `CiliumPolicyDropsHigh`: over 100 policy-denied packets on one node in 10 minutes |
+
+1. Turned on Argo CD's metrics Services in `argocd.tf` and scraped them with a ServiceMonitor. Argo CD is a Talos inline manifest, but this only *created* new objects, which a plain `terraform apply` handles; only changes and deletions need `talosctl upgrade-k8s`
+2. Set the drop threshold from data, not a guess: before the rule existed, the busiest node had dropped at most 7 packets in any 10 minutes. 100 leaves room for the normal background while still catching a burst
+3. Checked every rule with `promtool check rules` inside the Prometheus pod before pushing, and added Argo CD's out-of-sync and unhealthy counts to the overview dashboard
+4. **Knock test:** a deliberate burst of blocked connection attempts at `talos-wk-02` produced about 210 policy drops in 10 minutes. `CiliumPolicyDropsHigh` fired for that node and cleared on its own once the burst had passed. In the two weeks since, the highest 10-minute count on any node has been 24
+
+### Status page (cyberlab-status)
+The first app of my own on the cluster, written in Go. The app is deliberately small: a one-page summary of the cluster's health from Prometheus, where every check is **zero when healthy**. The point is the path from `git push` to a running pod.
+
+| Stage | What happens |
+|-------|--------------|
+| CI (every push) | `go mod verify`, `go vet`, `go test -race`, golangci-lint (with `gosec`), govulncheck, image build + smoke test (starts, answers `/healthz`, runs as nonroot), Trivy, gitleaks |
+| Release (version tag) | Build, Trivy gate (nothing is pushed if it fails), SPDX SBOM, push to GHCR with SLSA provenance, **cosign keyless signature** and signed SBOM attestation by digest, verify both |
+| Deploy | The release workflow opens a PR in `cyberlab-infra` that changes the deployed tag and digest. **Merging it is the deploy**: Argo CD syncs `main` |
+
+1. Kept the image minimal: a static binary on `distroless/static` (no shell, no package manager), as UID 65532, with both base images pinned by digest and Dependabot proposing updates weekly
+2. No JavaScript on the page, which allows a strict Content-Security-Policy (`default-src 'none'`). Checks refresh in the background every 15 seconds, so open browser tabs can't flood Prometheus
+3. Signing is keyless: the workflow's GitHub OIDC token gets a short-lived Sigstore certificate naming this repository and workflow, recorded in a public transparency log. There is no signing key to store or leak
+4. The deploy PR is opened with a fine-grained token that can only touch `cyberlab-infra` (contents and pull requests), stored in a GitHub environment that hands it only to jobs running from a `v*` tag
+5. Locked it down in the cluster: Pod Security `restricted` for the namespace, no Kubernetes API token, read-only root filesystem, every capability dropped, and a default-deny NetworkPolicy that allows only DNS, queries to Prometheus, and Prometheus' scrape
+6. Tested the NetworkPolicy from inside the pod's network with an ephemeral debug container: Prometheus answered; Grafana, Argo CD, the Falcosidekick UI, and the internet timed out
+7. Verified the whole chain: tagging `v0.3.0` built, signed, and published the image, the bot opened the deploy PR, and after the merge Argo CD rolled it out in under 30 seconds, with Kyverno checking the signature at admission
+
+### Image signatures (Kyverno)
+Signing images only helps if something checks the signatures. Kyverno checks every pod created in the app namespaces at admission. Each image must be:
+
+- **Signed by the app's own release workflow**, run from a version tag: the signing certificate must name `jakefrenzel/<app>/.github/workflows/release.yml@refs/tags/v…`, checked against Sigstore's transparency log
+- **Carrying its signed SBOM** from the same workflow
+- **Run by digest**: a tag is rewritten to the digest that was verified, so a re-pushed tag can't swap the image
+
+Init and ephemeral containers are checked too, so `kubectl debug` with an arbitrary image is rejected.
+
+1. Installed Kyverno v1.19.2 through Argo CD. It was newer than I'd normally take, but it fixed 24 security advisories, including some in image verification
+2. Ran the policy in **audit mode** first. The app passed by digest and by tag; it caught `busybox`, an unsigned init container, and an image validly signed by someone else (Sigstore's own `cosign` image, rejected for the wrong signer identity). Only then switched it to **Deny**, and repeated the same cases to see them refused at admission
+3. Scoped it to the app namespaces, failing closed: if Kyverno is down, those apps can't start new pods, but nothing else in the cluster is affected
+4. Checks run at admission only. A background scan would also try to list ephemeral containers, which Kubernetes doesn't allow, and the policy never became ready
+
+> [!NOTE]
+> Two Argo CD details made Kyverno look broken when it wasn't. Its CRDs showed `OutOfSync` forever until the app used server-side diff. And because the chart has a pre-delete hook, Argo CD adds a finalizer to the app, which `root` stripped every 5 minutes because the file in git didn't list it. The app flapped between synced and out of sync for days until the finalizer was added to the file.
+
+### PostgreSQL (CloudNativePG)
+The GitHub mirror (next section) needed a database for accounts and sessions. The CloudNativePG operator manages PostgreSQL clusters declared as Kubernetes resources.
+
+| Setting | Value | Why |
+|---------|-------|-----|
+| Instances | 1 | Enough for a lab; its PodDisruptionBudget is off, since with one instance it would block every node drain |
+| Image | PostgreSQL 18.6, CloudNativePG `minimal`, pinned by digest | Smallest image, and the operator image too |
+| Storage | 5 Gi local-path volume | Lives on one worker, like the monitoring data |
+| Credentials | Generated by the operator into a Secret | Never in git; there is no superuser Secret at all |
+| Backups | None yet | Losing it loses accounts and sessions only; the repositories are re-cloned from GitHub |
+
+1. Ran the operator under Pod Security `restricted`, with server-side diff so the CA it injects into its own webhooks isn't reported as drift
+2. Made the namespace **default-deny**. The database accepts only the operator, Prometheus, its own instances, and later the mirror's API, and reaches only DNS and the Kubernetes API. The API server needed a `CiliumNetworkPolicy`, because a plain NetworkPolicy can't select it under Cilium
+3. Added five alert rules (database down, metrics missing, connections near the limit, long transactions, nearly full) and CloudNativePG's own Grafana dashboard
+4. Verified: a pod in `default` times out on `:5432`, and a pod in the namespace that isn't part of the database can't even resolve DNS
+
+### GitHub mirror (cyberlab-mirror)
+[cyberlab-mirror](https://github.com/jakefrenzel/cyberlab-mirror) keeps a copy of every repository I own on GitHub (45 repositories, about 43 MiB) and serves them read-only, with a file tree, file view, and commit log. It's the first real user of my own authentication module, [`atlasopsec/auth`](https://github.com/atlasopsec/auth), which handles sign-up, login, 2FA, and sessions.
+
+| Part | What |
+|------|------|
+| API (Go) | Lists my repositories through the GitHub API, keeps bare copies on a 5 Gi volume, syncs on a schedule, serves the browse endpoints, and hosts the auth module |
+| Web (Next.js) | The auth module's Next.js template plus the mirror UI; the only part a browser talks to |
+| Database | The CloudNativePG cluster above |
+
+1. Shipped it through the same pipeline as the status page, with one release signing two images and opening one deploy PR. Releases `v0.1.0` to `v0.4.0` all went out this way
+2. Only allow-listed emails can create an account. A refused sign-up gets the same answer as an accepted one, so the form can't be used to discover which emails are allowed
+3. Treated repository contents as hostile: file contents are never rendered as HTML, symlinks are shown as text and never followed, and paths are checked so `../` can't escape a repository. Tested locally with a deliberately hostile repository (script tags in files and commit messages, SVG with `onload`, a symlink to `/etc/passwd`, binary files): everything rendered inert
+4. Network policies, enforced by Cilium:
+   - the web app reaches only DNS and the API
+   - the API accepts only the web app and Prometheus, and reaches only the database
+   - the API leaves the cluster **by name**, only for `api.github.com`, `github.com`, `api.resend.com` (sign-up email), and `api.pwnedpasswords.com` (breached-password check), over HTTPS. Cilium enforces this through its DNS proxy (`toFQDNs`)
+5. Connected the API to PostgreSQL with full certificate verification against the cluster's CA. Only the CA's certificate is mounted, since its Secret also holds the CA's private key
+6. Extended Kyverno to the namespace with three allowed signers: my release workflow, CloudNativePG's image build (PostgreSQL), and CloudNativePG's release workflow (the operator image runs as an init container in each database pod). The identities were read from the images' actual signing certificates, then tested in audit mode with pods that could never be scheduled before switching to Deny
+7. Created the two hand-made Secrets (GitHub token, email API key, the allow-list, and the key that encrypts users' 2FA secrets) with a script that prompts for each value and backs up the generated key encrypted with age
+8. **First sync was OOM-killed** at 256 MiB, six seconds in, on every restart. Measured locally that fetching the largest repository peaks around 400 MiB, because the Git library inflates whole objects while indexing a fetch. Fixed with a bounded object cache in the app, a 1 GiB limit, and `GOMEMLIMIT` set below the limit (it had been equal, leaving the garbage collector no headroom). Idle memory is now about 10 MiB
+9. Verified: all 45 repositories synced with none failing. A live Hubble capture during a sync showed only `github.com`, `api.github.com`, the database, and DNS, with no drops. A real sign-up email arrived through Resend, and the login event recorded the real browser. From inside the web pod, GitHub, the internet, the database, and Prometheus all timed out
+
+### Tuning Falco
+Falco ran untuned for two weeks so that tuning would be based on what this cluster actually does. Over 13 days it logged **59 events, 58 of them false positives**:
+
+| Rule | Events | Cause |
+|------|--------|-------|
+| Run shell untrusted | 32 | PostgreSQL runs its WAL-archive command through `sh`. Falco ships an exception for exactly this, but it expects `sh -c /controller/...`, while current PostgreSQL runs `sh -c -- /controller/...`, so it never matched |
+| Redirect STDOUT/STDIN to Network Connection | 23 | Go programs (Cilium's agent, the CloudNativePG instance manager, Argo CD's repo server) whose network connections land on file descriptors 0–2 |
+| Clear Log Activities | 3 | containerd unpacking image layers that contain `/var/log/dpkg.log`. Falco's exception for containerd checks the process name, but on Talos these events arrive with no process information |
+| Read sensitive file untrusted | 1 | **Real:** my own `/etc/shadow` test from the day Falco was installed |
+
+1. Wrote three exceptions in a custom rules file (`customRules` in the Falco Application), each pinned to the container image **and** process that caused it, so none of them silences a rule for anything else. The containerd one is limited to the host and containerd's own directories
+2. Validated the file with `falco -V` inside a running Falco pod before committing, then checked all three pods loaded it after the rollout
+3. Removed the route that kept Falco out of Discord. Only Warning and above reach Alertmanager, and over the baseline that would have been one message in two weeks
+4. Gave Falco alerts their own Discord format. Each event carries about 25 labels, and the default template put all of them in the title (cut off at 256 characters) and the body. Falco alerts now get a title of priority and rule, and a body with the node, pod, image, command, and target. They're grouped per rule and pod, with no "resolved" message, since an event is a moment, not an ongoing state
+5. Tested end to end: `cat /etc/shadow` in a throwaway `busybox` pod showed up in Discord about 30 seconds later as *Falco Warning: Read sensitive file untrusted*, naming the node, pod, image, and command
 
 ## Choosing the Cluster Subnet
 The subnet must not overlap any network the admin laptop or the cluster already uses:
@@ -486,8 +592,20 @@ The first subnet picked was `10.99.40.0/24`. It looked free, but `10.96.0.0/12` 
 35. In an app-of-apps setup, a child Application's spec is synced by `root`. Refreshing the child alone keeps using its old spec
 36. Mounting a credential as a file (`webhook_url_file`) keeps it out of git and out of the rendered config, but it also makes the Secret a hard dependency for the pod to start
 37. Validate config where it will run. `amtool` inside the running Alertmanager pod checked the syntax and every route before the change was pushed
+38. Set alert thresholds from measured baselines. "Over 100 drops in 10 minutes" means something because the normal maximum was 7, and a knock test proved the alert fires
+39. A signature nobody checks proves nothing. Signing in CI and verifying at admission are two halves of one control
+40. The most useful negative test for signature checks is a **validly signed image from the wrong signer**. Rejecting unsigned images is easy; rejecting a real Sigstore signature with the wrong identity shows the policy checks *who* signed
+41. Audit mode first, for anything that can block. Every admission policy ran in audit until the real workloads had passed, and pods that can never be scheduled make safe test subjects
+42. Argo CD and an operator can fight over the same object. Webhook CA bundles injected at runtime and finalizers added by Argo CD itself both showed up as drift until the diff was told about them
+43. Measure memory instead of guessing it. The mirror's limit came from profiling the biggest repository locally, and `GOMEMLIMIT` has to sit below the container limit, not at it
+44. Egress by name (`toFQDNs`) is much tighter than by IP for SaaS APIs whose addresses change, and a live Hubble capture is the proof that nothing else is being reached
+45. Upstream exceptions go stale. Falco's own exception for CloudNativePG stopped matching when PostgreSQL started passing `sh -c --`, and the containerd one assumes process information Talos events don't carry. Read why an exception doesn't match before writing a broader one
+46. Pin exceptions to the image **and** the process. Excluding a whole namespace or rule would have hidden a real shell in those same pods
+47. Alerts for events and alerts for states need different formats. Falco events have dozens of labels and no "resolved", so the default template that suits Kubernetes alerts made them unreadable
+48. Test an alert end to end, all the way to the phone. Every hop reported success while the Discord message itself was unreadable
 
 ## ➡️ Next Up
-- Tune Falco against a few days of baseline, then send its alerts to Discord
+- A dead-man's switch for the always-firing `Watchdog` alert, so a dead Prometheus or Alertmanager is noticed
 - Move Terraform state to a remote backend (encrypted, with locking)
-- Deploy an app of my own end to end: build in GitHub Actions, publish to GHCR, deploy with Argo CD
+- Backups for the PostgreSQL database
+- Re-check Falco after another week of tuned data, then consider automated responses (Falco Talon)
